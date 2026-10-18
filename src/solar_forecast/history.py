@@ -99,7 +99,7 @@ def _physical(prediction, variable):
     )
 
 
-def evaluate_history(frame):
+def evaluate_history(frame, partitions=None):
     """Tune using earlier ERA5 targets; GFS appears only in final comparator scores.
 
     This measures weather error relative to reanalysis, not measured PV error.
@@ -108,7 +108,23 @@ def evaluate_history(frame):
     features = weather_features(frame)
     if not np.isfinite(frame.to_numpy(dtype=float)).all():
         raise ValueError("Historical benchmark requires finite weather values")
-    parts = historical_partitions(frame.index)
+    parts = historical_partitions(frame.index) if partitions is None else partitions
+    previous_end = -1
+    for name in ("train", "validation", "test"):
+        positions = np.asarray(parts[name])
+        if (
+            positions.ndim != 1
+            or not len(positions)
+            or not np.issubdtype(positions.dtype, np.integer)
+        ):
+            raise ValueError("Partitions require nonempty integer index vectors")
+        if (
+            positions[0] <= previous_end
+            or positions[-1] >= len(frame)
+            or not np.all(np.diff(positions) == 1)
+        ):
+            raise ValueError("Partitions must be ordered, contiguous and disjoint")
+        previous_end = positions[-1]
     train, validation, test = (parts[k] for k in ("train", "validation", "test"))
     report = {
         "task": "historical weather verification, not PV-power validation",
@@ -138,8 +154,10 @@ def evaluate_history(frame):
             scores[model] = metrics(
                 actual[test], frame[variable + "_" + model].iloc[test].to_numpy()
             )
+            forecasts[variable + "_" + model] = frame[variable + "_" + model].iloc[test]
         mean = frame[[variable + "_" + m for m in INPUT_MODELS]].mean(axis=1).to_numpy()
         scores["input_ensemble_mean"] = metrics(actual[test], mean[test])
+        forecasts[variable + "_input_ensemble_mean"] = mean[test]
         forecasts[variable + "_era5"] = actual[test]
         forecasts[variable + "_" + COMPARATOR] = frame[
             variable + "_" + COMPARATOR

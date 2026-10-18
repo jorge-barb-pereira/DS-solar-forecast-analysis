@@ -1,8 +1,8 @@
 # Solar Forecast Analysis
 
-[![Forecast checks](https://github.com/jorge-barb-pereira/solar-forecast-analysis/actions/workflows/forecast.yml/badge.svg)](https://github.com/jorge-barb-pereira/solar-forecast-analysis/actions/workflows/forecast.yml)
+[![Forecast checks](https://github.com/jorge-barb-pereira/DS-solar-forecast-analysis/actions/workflows/forecast.yml/badge.svg)](https://github.com/jorge-barb-pereira/DS-solar-forecast-analysis/actions/workflows/forecast.yml)
 
-An independently written portfolio demonstration of solar-power forecasting, causal feature engineering and chronological evaluation. **All power observations and published evaluation results are synthetic.** The default experiment runs offline. An optional Open-Meteo adapter downloads public weather forecasts using location settings supplied locally.
+An independently written portfolio demonstration of solar-power forecasting, weather-model disagreement and chronological evaluation. **Power observations and power-forecast results are synthetic.** A separate historical weather study uses public forecasts and ERA5 reanalysis, with sanitized aggregate results published below. The default experiments run offline; live acquisition uses location settings supplied locally.
 
 This edition was developed in **October 2026**. It demonstrates general forecasting methods; it does not reproduce an operational installation, a deployment or measured forecasting performance.
 
@@ -16,7 +16,7 @@ This edition was developed in **October 2026**. It demonstrates general forecast
 - Explicit error units, baseline skill and tests for future-data leakage.
 - Optional Open-Meteo calls for current forecasts, previous-day offsets and archived individual model runs, including weather-model comparisons.
 - A separate 96-step daily forecasting study using previous-day/week profiles and weather-model disagreement, with an explicit spread-feature ablation.
-- An optional historical weather benchmark against ERA5, with a separate GFS comparator excluded from fitting and tuning. Downloads and results stay local.
+- A historical weather benchmark against ERA5, with GFS excluded from fitting and tuning, rolling-origin evaluation and paired block-bootstrap intervals. Raw downloads and location settings stay local.
 
 ![Synthetic forecast analysis](docs/figures/forecast-analysis.png)
 
@@ -44,6 +44,10 @@ For live weather downloads, see [Open-Meteo setup and interpretation](docs/OPEN_
 
 For real archived weather, run `python -m solar_forecast.history --start-date 2025-01-01 --end-date 2025-12-31` with local location settings. See the [historical evaluation protocol](docs/HISTORICAL_BENCHMARK.md). This evaluates weather against reanalysis; it does not establish real PV-power accuracy.
 
+**[Read the historical results report](docs/HISTORICAL_RESULTS.md)** for the original holdout, seven rolling windows and paired confidence intervals. Across 201 rolling test days, adding spread does not show a clear incremental benefit over the trained means-only model. The simple ensemble average has the lowest pooled radiation MAE. These are retrospective weather-verification findings, not measured PV validation.
+
+![Historical rolling scores and uncertainty](docs/figures/historical-robustness.png)
+
 For the daily multi-output study, run `python -m solar_forecast.day_ahead`. It **uses inter-model spread as a forecasting input** and compares against the same model without spread. See [daily methods, normalization and limitations](docs/DAY_AHEAD.md) and the [fixed synthetic report](docs/results/day-ahead.json).
 
 ![Synthetic daily forecast and weather-spread comparison](docs/figures/day-ahead.png)
@@ -57,8 +61,9 @@ For the daily multi-output study, run `python -m solar_forecast.day_ahead`. It *
 | `src/solar_forecast/ensemble.py` | Reusable inter-model means, standard deviations, ranges and pairwise differences |
 | `src/solar_forecast/day_ahead.py` | Daily multi-output study, spread ablation and daily uncertainty bands |
 | `src/solar_forecast/history.py` | Optional historical weather post-processing and excluded-model comparison |
+| `src/solar_forecast/robustness.py` | Rolling origins, paired circular-block intervals and aggregate public reporting |
 | `tests/` | Analytic checks, causality perturbations and full synthetic experiment |
-| `docs/` | Methods, limitations, validation and generated synthetic results |
+| `docs/` | Methods, synthetic power results and sanitized historical weather results |
 | `tools/` | Public-file allowlist and artifact checks |
 
 ## Interpretation

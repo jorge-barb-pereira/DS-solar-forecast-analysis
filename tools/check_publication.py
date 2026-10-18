@@ -26,6 +26,10 @@ allowed_files = {
     "docs/figures/day-ahead.png",
     "tests/test_history.py",
     "docs/HISTORICAL_BENCHMARK.md",
+    "docs/HISTORICAL_RESULTS.md",
+    "docs/results/historical-robustness.json",
+    "docs/figures/historical-robustness.png",
+    "tests/test_robustness.py",
 }
 allowed_package = {
     "__init__.py",
@@ -37,6 +41,7 @@ allowed_package = {
     "ensemble.py",
     "day_ahead.py",
     "history.py",
+    "robustness.py",
 }
 checked = 0
 for p in root.rglob("*"):
