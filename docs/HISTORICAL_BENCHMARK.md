@@ -61,3 +61,19 @@ Paired error differences are first averaged by UTC day. Circular blocks are resa
 Weather attribution: [Open-Meteo](https://open-meteo.com/) (CC BY 4.0). Technical sources: [Previous Runs](https://open-meteo.com/en/docs/previous-runs-api), [Historical Weather / ERA5](https://open-meteo.com/en/docs/historical-weather-api), [Historical Forecast](https://open-meteo.com/en/docs/historical-forecast-api), [Single Runs](https://open-meteo.com/en/docs/single-runs-api). Respect current [provider usage terms](https://open-meteo.com/en/terms).
 
 The current research question and exact endpoint roles are specified in [study scope](STUDY_SCOPE.md). The primary ensemble has four declared members; the optional three-member comparison uses an identical complete-data grid. The earlier two-member report is legacy material.
+
+## Complete training year and next-year testing
+
+The [cross-year report](YEARLY_RESULTS.md) uses all 2025 data for final fitting, with estimator choices made using four expanding folds entirely within 2025. Models are then frozen for 2026. There is no rolling refit or test-year parameter selection. Its four-member set substitutes GFS for GEM for complete archive coverage, using that same set for training and testing.
+
+With local location variables configured, run:
+
+```bash
+python -m solar_forecast.yearly --as-of 2026-10-18
+# Once aggregate outputs have been reviewed:
+python -m solar_forecast.yearly --as-of 2026-10-18 --test-data output/yearly/weather-2026.csv --publish
+```
+
+`--train-data` defaults to the previously downloaded full 2025 `output/history/weather.csv`, which already contains the GFS fields needed by this protocol. `--test-data` reuses a local cached test year without contacting the provider. The snapshot date is explicit rather than taken from the machine clock. New acquisition requests January 1 through yesterday, rejects internal missing days, and trims only the incomplete trailing days shared by all required forecasts/reference fields. Raw test inputs, provenance and predictions stay under ignored `output/yearly/`; publication exports aggregate JSON, Markdown and plots only.
+
+Reports include full-calendar and January 8-onward availability-buffered scores, monthly coverage, positive-reference radiation scores, and paired circular-block intervals. Full-calendar January 1 scores use all late-December training labels retrospectively; they are not a claim those ERA5 labels were operationally available on January 1. The latest month and the test year are explicitly marked incomplete. Model choices remain fixed even when a baseline wins.

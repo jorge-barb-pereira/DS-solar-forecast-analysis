@@ -1,0 +1,1699 @@
+{
+  "scope": "Frozen cross-year weather verification against ERA5, not observed PV validation",
+  "training": {
+    "input_models": [
+      "icon_eu",
+      "ecmwf_ifs025",
+      "meteofrance_arpege_europe",
+      "gfs_global"
+    ],
+    "training_year": 2025,
+    "training_hours": 8760,
+    "first_training_time": "2025-01-01T00:00:00+00:00",
+    "last_training_time": "2025-12-31T23:00:00+00:00",
+    "final_fit": "All training-year rows after training-year-only chronological selection",
+    "selection": {
+      "shortwave_radiation": {
+        "means_only": {
+          "selected_model": "gradient_boosting",
+          "candidates": [
+            {
+              "model": "ridge_0.1",
+              "weighted_validation_mae": 20.215183718320038,
+              "fold_mae": [
+                28.795413808362255,
+                20.731524016483693,
+                18.05625363083886,
+                13.038314441708287
+              ]
+            },
+            {
+              "model": "ridge_10",
+              "weighted_validation_mae": 20.820738864786307,
+              "fold_mae": [
+                29.828118735633264,
+                21.608885951246794,
+                18.384606494022595,
+                13.207572051120383
+              ]
+            },
+            {
+              "model": "ridge_1000",
+              "weighted_validation_mae": 57.28046598753741,
+              "fold_mae": [
+                83.41122204974769,
+                70.36054623085505,
+                45.171775743151564,
+                29.243763165666326
+              ]
+            },
+            {
+              "model": "gradient_boosting",
+              "weighted_validation_mae": 19.144241710095585,
+              "fold_mae": [
+                28.9674016680431,
+                17.889388415476873,
+                16.58008372727975,
+                12.93305341990976
+              ]
+            }
+          ]
+        },
+        "means_plus_variance": {
+          "selected_model": "gradient_boosting",
+          "candidates": [
+            {
+              "model": "ridge_0.1",
+              "weighted_validation_mae": 20.78940065544403,
+              "fold_mae": [
+                32.72805488549322,
+                18.41806602389225,
+                18.155754858429184,
+                13.616634653910339
+              ]
+            },
+            {
+              "model": "ridge_10",
+              "weighted_validation_mae": 21.385419855355263,
+              "fold_mae": [
+                33.790682181563824,
+                19.238584976685583,
+                18.45217306457908,
+                13.807646762152482
+              ]
+            },
+            {
+              "model": "ridge_1000",
+              "weighted_validation_mae": 57.1663384223682,
+              "fold_mae": [
+                83.91705094945426,
+                68.43901553380466,
+                45.68099304993379,
+                29.71318918158741
+              ]
+            },
+            {
+              "model": "gradient_boosting",
+              "weighted_validation_mae": 18.04794524228745,
+              "fold_mae": [
+                27.7395321960967,
+                16.91476155515437,
+                15.718096954757417,
+                11.604612505239723
+              ]
+            }
+          ]
+        }
+      },
+      "temperature_2m": {
+        "means_only": {
+          "selected_model": "ridge_10",
+          "candidates": [
+            {
+              "model": "ridge_0.1",
+              "weighted_validation_mae": 0.6579635762067659,
+              "fold_mae": [
+                0.6396598109262123,
+                0.770937958485149,
+                0.6660220118323177,
+                0.5516921424584407
+              ]
+            },
+            {
+              "model": "ridge_10",
+              "weighted_validation_mae": 0.6558306840255096,
+              "fold_mae": [
+                0.635109678037143,
+                0.7648721077923654,
+                0.665786310702945,
+                0.5541658104504154
+              ]
+            },
+            {
+              "model": "ridge_1000",
+              "weighted_validation_mae": 1.502661994033182,
+              "fold_mae": [
+                2.3951220389486574,
+                1.683210625469742,
+                0.8457339806597307,
+                1.0722337219863707
+              ]
+            },
+            {
+              "model": "gradient_boosting",
+              "weighted_validation_mae": 0.7685436688389523,
+              "fold_mae": [
+                1.0328516306104814,
+                0.7791515343094975,
+                0.7224187183987252,
+                0.5318634514577308
+              ]
+            }
+          ]
+        },
+        "means_plus_variance": {
+          "selected_model": "ridge_10",
+          "candidates": [
+            {
+              "model": "ridge_0.1",
+              "weighted_validation_mae": 0.665921437682237,
+              "fold_mae": [
+                0.6312775230178873,
+                0.8060717193242394,
+                0.6675154767278364,
+                0.555127914209907
+              ]
+            },
+            {
+              "model": "ridge_10",
+              "weighted_validation_mae": 0.6638167767491997,
+              "fold_mae": [
+                0.6281988992885008,
+                0.7973699527421849,
+                0.6677422871470401,
+                0.5584435261318275
+              ]
+            },
+            {
+              "model": "ridge_1000",
+              "weighted_validation_mae": 1.583205276285455,
+              "fold_mae": [
+                2.669236518169561,
+                1.575615459253405,
+                0.9249849880545522,
+                1.1484937556428816
+              ]
+            },
+            {
+              "model": "gradient_boosting",
+              "weighted_validation_mae": 0.7563432602495849,
+              "fold_mae": [
+                1.0240903379239743,
+                0.7527989475326065,
+                0.7101461134967747,
+                0.5308202069344806
+              ]
+            }
+          ]
+        }
+      }
+    },
+    "selection_folds": [
+      {
+        "train_hours": 2880,
+        "last_train_time": "2025-04-30T23:00:00+00:00",
+        "first_validation_time": "2025-05-08T00:00:00+00:00",
+        "last_validation_time": "2025-07-06T23:00:00+00:00"
+      },
+      {
+        "train_hours": 4320,
+        "last_train_time": "2025-06-29T23:00:00+00:00",
+        "first_validation_time": "2025-07-07T00:00:00+00:00",
+        "last_validation_time": "2025-09-04T23:00:00+00:00"
+      },
+      {
+        "train_hours": 5760,
+        "last_train_time": "2025-08-28T23:00:00+00:00",
+        "first_validation_time": "2025-09-05T00:00:00+00:00",
+        "last_validation_time": "2025-11-03T23:00:00+00:00"
+      },
+      {
+        "train_hours": 7200,
+        "last_train_time": "2025-10-27T23:00:00+00:00",
+        "first_validation_time": "2025-11-04T00:00:00+00:00",
+        "last_validation_time": "2025-12-31T23:00:00+00:00"
+      }
+    ],
+    "versions": {
+      "numpy": "2.3.5",
+      "pandas": "2.3.3",
+      "scikit-learn": "1.9.1"
+    }
+  },
+  "input_models": [
+    "icon_eu",
+    "ecmwf_ifs025",
+    "meteofrance_arpege_europe",
+    "gfs_global"
+  ],
+  "excluded_comparator": null,
+  "input_model_change": "The earlier within-2025 study uses GEM Global and excludes GFS. This cross-year study replaces GEM with GFS because GEM has internal 2026 archive gaps; JMA GSM also lacks required radiation. The choice used field completeness before test errors were examined. All 2025 fitting uses the same four members as 2026 prediction; earlier scores are not a controlled before/after comparison.",
+  "test_year": 2026,
+  "first_test_time": "2026-01-01T00:00:00+00:00",
+  "last_test_time": "2026-10-12T23:00:00+00:00",
+  "test_hours": 6840,
+  "test_days": 285,
+  "test_status": "Year-to-date; not a complete test year",
+  "model_updates_during_test": false,
+  "variables": {
+    "shortwave_radiation": {
+      "unit": "W/m\u00b2",
+      "all_hours": {
+        "icon_eu": {
+          "mae": 23.179093567251464,
+          "rmse": 52.50975821313919,
+          "bias": -7.173830409356725,
+          "samples": 6840
+        },
+        "ecmwf_ifs025": {
+          "mae": 17.950730994152046,
+          "rmse": 38.76016184433226,
+          "bias": 0.39809941520467834,
+          "samples": 6840
+        },
+        "meteofrance_arpege_europe": {
+          "mae": 28.385423976608184,
+          "rmse": 64.86039976443516,
+          "bias": 0.2432894736842103,
+          "samples": 6840
+        },
+        "gfs_global": {
+          "mae": 27.939181286549708,
+          "rmse": 63.64287008205005,
+          "bias": 4.9903508771929825,
+          "samples": 6840
+        },
+        "input_ensemble_mean": {
+          "mae": 17.885135233918128,
+          "rmse": 39.45915037525502,
+          "bias": -0.3855226608187133,
+          "samples": 6840
+        },
+        "means_only": {
+          "mae": 18.29533617440598,
+          "rmse": 37.97733906191001,
+          "bias": -1.2843915289386079,
+          "samples": 6840
+        },
+        "means_plus_variance": {
+          "mae": 17.596207469018967,
+          "rmse": 36.769650090791345,
+          "bias": -0.5725638459098311,
+          "samples": 6840
+        }
+      },
+      "positive_reference_hours": {
+        "icon_eu": {
+          "mae": 41.71086556169429,
+          "rmse": 70.43996176623034,
+          "bias": -12.91002367797948,
+          "samples": 3801
+        },
+        "ecmwf_ifs025": {
+          "mae": 32.29886871875822,
+          "rmse": 51.99533502641693,
+          "bias": 0.7124440936595633,
+          "samples": 3801
+        },
+        "meteofrance_arpege_europe": {
+          "mae": 51.076742962378326,
+          "rmse": 87.0078936474082,
+          "bias": 0.43422783478032,
+          "samples": 3801
+        },
+        "gfs_global": {
+          "mae": 50.277295448566164,
+          "rmse": 85.37463750600507,
+          "bias": 8.980268350434097,
+          "samples": 3801
+        },
+        "input_ensemble_mean": {
+          "mae": 32.18276111549592,
+          "rmse": 52.93303394022062,
+          "bias": -0.695770849776374,
+          "samples": 3801
+        },
+        "means_only": {
+          "mae": 32.6030575957474,
+          "rmse": 50.93575028082256,
+          "bias": -2.6311801024575403,
+          "samples": 3801
+        },
+        "means_plus_variance": {
+          "mae": 31.187749507846284,
+          "rmse": 49.302958391245596,
+          "bias": -1.507434863138452,
+          "samples": 3801
+        }
+      },
+      "availability_buffered": {
+        "icon_eu": {
+          "mae": 23.36031175059952,
+          "rmse": 52.775487665405265,
+          "bias": -7.309052757793765,
+          "samples": 6672
+        },
+        "ecmwf_ifs025": {
+          "mae": 18.058902877697843,
+          "rmse": 38.93996139604121,
+          "bias": 0.29901079136690645,
+          "samples": 6672
+        },
+        "meteofrance_arpege_europe": {
+          "mae": 28.70353717026379,
+          "rmse": 65.34438811981484,
+          "bias": 0.3580635491606709,
+          "samples": 6672
+        },
+        "gfs_global": {
+          "mae": 28.29466426858513,
+          "rmse": 64.24796929672561,
+          "bias": 5.334232613908873,
+          "samples": 6672
+        },
+        "input_ensemble_mean": {
+          "mae": 18.069012290167862,
+          "rmse": 39.74366915918071,
+          "bias": -0.3294364508393284,
+          "samples": 6672
+        },
+        "means_only": {
+          "mae": 18.47677262436086,
+          "rmse": 38.246851561287045,
+          "bias": -1.2685464747943629,
+          "samples": 6672
+        },
+        "means_plus_variance": {
+          "mae": 17.77263858864454,
+          "rmse": 37.026117598075366,
+          "bias": -0.5489288100910457,
+          "samples": 6672
+        }
+      },
+      "monthly": {
+        "2026-01": {
+          "hours": 744,
+          "scores": {
+            "icon_eu": {
+              "mae": 14.173387096774194,
+              "rmse": 34.0525960989066,
+              "bias": -2.428763440860215,
+              "samples": 744
+            },
+            "ecmwf_ifs025": {
+              "mae": 11.599462365591398,
+              "rmse": 25.83831030794956,
+              "bias": 2.39247311827957,
+              "samples": 744
+            },
+            "meteofrance_arpege_europe": {
+              "mae": 17.57728494623656,
+              "rmse": 42.082258316941164,
+              "bias": -1.2345430107526885,
+              "samples": 744
+            },
+            "gfs_global": {
+              "mae": 19.556451612903224,
+              "rmse": 45.3847056328048,
+              "bias": -6.688172043010753,
+              "samples": 744
+            },
+            "input_ensemble_mean": {
+              "mae": 10.89459005376344,
+              "rmse": 24.64938964993347,
+              "bias": -1.9897513440860208,
+              "samples": 744
+            },
+            "means_only": {
+              "mae": 10.832006893664486,
+              "rmse": 24.167715334939725,
+              "bias": -0.3866157446315666,
+              "samples": 744
+            },
+            "means_plus_variance": {
+              "mae": 10.164605302319705,
+              "rmse": 22.969491723472863,
+              "bias": -0.3680477634834213,
+              "samples": 744
+            }
+          }
+        },
+        "2026-02": {
+          "hours": 672,
+          "scores": {
+            "icon_eu": {
+              "mae": 15.77827380952381,
+              "rmse": 34.446451714426054,
+              "bias": -4.337797619047619,
+              "samples": 672
+            },
+            "ecmwf_ifs025": {
+              "mae": 13.785714285714286,
+              "rmse": 30.804587629890765,
+              "bias": -4.241071428571429,
+              "samples": 672
+            },
+            "meteofrance_arpege_europe": {
+              "mae": 20.512053571428574,
+              "rmse": 45.79842268936053,
+              "bias": -3.139732142857143,
+              "samples": 672
+            },
+            "gfs_global": {
+              "mae": 26.28125,
+              "rmse": 58.23077293550779,
+              "bias": -11.447916666666666,
+              "samples": 672
+            },
+            "input_ensemble_mean": {
+              "mae": 14.105245535714285,
+              "rmse": 30.56304865791973,
+              "bias": -5.791629464285714,
+              "samples": 672
+            },
+            "means_only": {
+              "mae": 14.396819301507048,
+              "rmse": 30.304115791444957,
+              "bias": -4.5977902987444494,
+              "samples": 672
+            },
+            "means_plus_variance": {
+              "mae": 13.463241203252112,
+              "rmse": 28.29695666812222,
+              "bias": -3.5172061640635652,
+              "samples": 672
+            }
+          }
+        },
+        "2026-03": {
+          "hours": 744,
+          "scores": {
+            "icon_eu": {
+              "mae": 19.868279569892472,
+              "rmse": 48.0828138657391,
+              "bias": -3.0403225806451615,
+              "samples": 744
+            },
+            "ecmwf_ifs025": {
+              "mae": 16.018817204301076,
+              "rmse": 34.22490447059722,
+              "bias": -4.139784946236559,
+              "samples": 744
+            },
+            "meteofrance_arpege_europe": {
+              "mae": 20.732123655913977,
+              "rmse": 51.64153520764222,
+              "bias": 5.300940860215052,
+              "samples": 744
+            },
+            "gfs_global": {
+              "mae": 24.391129032258064,
+              "rmse": 60.05354913276034,
+              "bias": -1.8185483870967742,
+              "samples": 744
+            },
+            "input_ensemble_mean": {
+              "mae": 15.51179435483871,
+              "rmse": 36.411908110552844,
+              "bias": -0.9244287634408586,
+              "samples": 744
+            },
+            "means_only": {
+              "mae": 18.158913029016585,
+              "rmse": 38.01737714259538,
+              "bias": -4.664693193374783,
+              "samples": 744
+            },
+            "means_plus_variance": {
+              "mae": 17.17226910367548,
+              "rmse": 36.897311507035575,
+              "bias": -3.1156382248741576,
+              "samples": 744
+            }
+          }
+        },
+        "2026-04": {
+          "hours": 720,
+          "scores": {
+            "icon_eu": {
+              "mae": 27.206944444444446,
+              "rmse": 59.887197203483225,
+              "bias": -10.504166666666666,
+              "samples": 720
+            },
+            "ecmwf_ifs025": {
+              "mae": 20.084722222222222,
+              "rmse": 39.43502039220132,
+              "bias": -1.8347222222222221,
+              "samples": 720
+            },
+            "meteofrance_arpege_europe": {
+              "mae": 28.88402777777778,
+              "rmse": 61.054909598746534,
+              "bias": 4.485972222222221,
+              "samples": 720
+            },
+            "gfs_global": {
+              "mae": 34.65833333333333,
+              "rmse": 78.09936690595585,
+              "bias": -6.766666666666667,
+              "samples": 720
+            },
+            "input_ensemble_mean": {
+              "mae": 21.267326388888893,
+              "rmse": 44.10254841740693,
+              "bias": -3.6548958333333337,
+              "samples": 720
+            },
+            "means_only": {
+              "mae": 22.25072383427066,
+              "rmse": 44.08471986065962,
+              "bias": -7.581389791366437,
+              "samples": 720
+            },
+            "means_plus_variance": {
+              "mae": 21.617303270169433,
+              "rmse": 43.0933124546171,
+              "bias": -4.873788431915707,
+              "samples": 720
+            }
+          }
+        },
+        "2026-05": {
+          "hours": 744,
+          "scores": {
+            "icon_eu": {
+              "mae": 35.87768817204301,
+              "rmse": 71.20092159908563,
+              "bias": -7.584677419354839,
+              "samples": 744
+            },
+            "ecmwf_ifs025": {
+              "mae": 25.06989247311828,
+              "rmse": 50.86874317553034,
+              "bias": 5.618279569892473,
+              "samples": 744
+            },
+            "meteofrance_arpege_europe": {
+              "mae": 45.10268817204301,
+              "rmse": 83.27283196223576,
+              "bias": 19.93064516129032,
+              "samples": 744
+            },
+            "gfs_global": {
+              "mae": 43.64381720430107,
+              "rmse": 83.0731718530142,
+              "bias": 22.547043010752688,
+              "samples": 744
+            },
+            "input_ensemble_mean": {
+              "mae": 27.005241935483873,
+              "rmse": 51.52642442780711,
+              "bias": 10.127822580645162,
+              "samples": 744
+            },
+            "means_only": {
+              "mae": 23.55745850765122,
+              "rmse": 45.09042315862741,
+              "bias": 0.8823246536175735,
+              "samples": 744
+            },
+            "means_plus_variance": {
+              "mae": 23.107354856013902,
+              "rmse": 44.949708688849775,
+              "bias": 0.9502962247787927,
+              "samples": 744
+            }
+          }
+        },
+        "2026-06": {
+          "hours": 720,
+          "scores": {
+            "icon_eu": {
+              "mae": 25.069444444444443,
+              "rmse": 51.67486494096203,
+              "bias": -6.741666666666666,
+              "samples": 720
+            },
+            "ecmwf_ifs025": {
+              "mae": 20.181944444444444,
+              "rmse": 39.59922488018056,
+              "bias": 5.918055555555555,
+              "samples": 720
+            },
+            "meteofrance_arpege_europe": {
+              "mae": 32.58541666666667,
+              "rmse": 70.69191520251803,
+              "bias": -4.458750000000001,
+              "samples": 720
+            },
+            "gfs_global": {
+              "mae": 32.11388888888889,
+              "rmse": 64.92429351859664,
+              "bias": 14.858333333333333,
+              "samples": 720
+            },
+            "input_ensemble_mean": {
+              "mae": 19.535937499999996,
+              "rmse": 40.181166718428756,
+              "bias": 2.3939930555555557,
+              "samples": 720
+            },
+            "means_only": {
+              "mae": 20.215105311480848,
+              "rmse": 37.359198479578176,
+              "bias": 0.05747488338588577,
+              "samples": 720
+            },
+            "means_plus_variance": {
+              "mae": 20.103530384874503,
+              "rmse": 36.49800576066822,
+              "bias": 2.1222735278088583,
+              "samples": 720
+            }
+          }
+        },
+        "2026-07": {
+          "hours": 744,
+          "scores": {
+            "icon_eu": {
+              "mae": 25.977150537634408,
+              "rmse": 55.10706831700107,
+              "bias": -10.751344086021506,
+              "samples": 744
+            },
+            "ecmwf_ifs025": {
+              "mae": 20.13978494623656,
+              "rmse": 42.22020486597301,
+              "bias": 0.7741935483870968,
+              "samples": 744
+            },
+            "meteofrance_arpege_europe": {
+              "mae": 37.027284946236556,
+              "rmse": 83.30352157615695,
+              "bias": -1.7745967741935498,
+              "samples": 744
+            },
+            "gfs_global": {
+              "mae": 25.629032258064516,
+              "rmse": 51.57539631817039,
+              "bias": 18.048387096774192,
+              "samples": 744
+            },
+            "input_ensemble_mean": {
+              "mae": 20.083837365591396,
+              "rmse": 41.91758433936906,
+              "bias": 1.5741599462365603,
+              "samples": 744
+            },
+            "means_only": {
+              "mae": 21.09368350283964,
+              "rmse": 41.55295351037419,
+              "bias": 1.1777785782680437,
+              "samples": 744
+            },
+            "means_plus_variance": {
+              "mae": 19.31068711602498,
+              "rmse": 38.11691885889314,
+              "bias": 0.24589555413611255,
+              "samples": 744
+            }
+          }
+        },
+        "2026-08": {
+          "hours": 744,
+          "scores": {
+            "icon_eu": {
+              "mae": 27.723118279569892,
+              "rmse": 61.717140053182035,
+              "bias": -9.368279569892474,
+              "samples": 744
+            },
+            "ecmwf_ifs025": {
+              "mae": 21.333333333333332,
+              "rmse": 45.87371632495416,
+              "bias": 0.013440860215053764,
+              "samples": 744
+            },
+            "meteofrance_arpege_europe": {
+              "mae": 39.34086021505376,
+              "rmse": 84.23820886826437,
+              "bias": -10.913978494623656,
+              "samples": 744
+            },
+            "gfs_global": {
+              "mae": 35.06182795698925,
+              "rmse": 81.26724796249624,
+              "bias": 12.31989247311828,
+              "samples": 744
+            },
+            "input_ensemble_mean": {
+              "mae": 22.14052419354839,
+              "rmse": 47.85363533720881,
+              "bias": -1.9872311827956983,
+              "samples": 744
+            },
+            "means_only": {
+              "mae": 21.407307273927312,
+              "rmse": 43.94305202982843,
+              "bias": 0.13187918175989202,
+              "samples": 744
+            },
+            "means_plus_variance": {
+              "mae": 20.500912759959128,
+              "rmse": 41.5638610457315,
+              "bias": 1.0341306616243828,
+              "samples": 744
+            }
+          }
+        },
+        "2026-09": {
+          "hours": 720,
+          "scores": {
+            "icon_eu": {
+              "mae": 19.0625,
+              "rmse": 48.642616774456805,
+              "bias": -12.770833333333334,
+              "samples": 720
+            },
+            "ecmwf_ifs025": {
+              "mae": 14.197222222222223,
+              "rmse": 34.13018377396237,
+              "bias": -2.15,
+              "samples": 720
+            },
+            "meteofrance_arpege_europe": {
+              "mae": 16.060138888888886,
+              "rmse": 46.56243612971011,
+              "bias": -8.135694444444445,
+              "samples": 720
+            },
+            "gfs_global": {
+              "mae": 13.21111111111111,
+              "rmse": 37.59491691409595,
+              "bias": 0.9222222222222223,
+              "samples": 720
+            },
+            "input_ensemble_mean": {
+              "mae": 11.97642361111111,
+              "rmse": 31.721535701427577,
+              "bias": -5.53357638888889,
+              "samples": 720
+            },
+            "means_only": {
+              "mae": 13.18736684391029,
+              "rmse": 30.737467820115334,
+              "bias": -0.9780502267633583,
+              "samples": 720
+            },
+            "means_plus_variance": {
+              "mae": 13.468156233771282,
+              "rmse": 32.107711580087965,
+              "bias": -0.7142694212210329,
+              "samples": 720
+            }
+          }
+        },
+        "2026-10": {
+          "hours": 288,
+          "scores": {
+            "icon_eu": {
+              "mae": 15.989583333333334,
+              "rmse": 37.54945812599105,
+              "bias": 0.4826388888888889,
+              "samples": 288
+            },
+            "ecmwf_ifs025": {
+              "mae": 14.753472222222221,
+              "rmse": 35.63437985678687,
+              "bias": 2.482638888888889,
+              "samples": 288
+            },
+            "meteofrance_arpege_europe": {
+              "mae": 19.702777777777776,
+              "rmse": 46.3654669746545,
+              "bias": 4.1618055555555555,
+              "samples": 288
+            },
+            "gfs_global": {
+              "mae": 19.211805555555557,
+              "rmse": 50.6620406331122,
+              "bias": 7.975694444444445,
+              "samples": 288
+            },
+            "input_ensemble_mean": {
+              "mae": 12.850868055555555,
+              "rmse": 32.817505173814375,
+              "bias": 3.775694444444445,
+              "samples": 288
+            },
+            "means_only": {
+              "mae": 16.244462012798024,
+              "rmse": 38.17845398979468,
+              "bias": 8.865384909570386,
+              "samples": 288
+            },
+            "means_plus_variance": {
+              "mae": 15.362331253091718,
+              "rmse": 37.09506545959004,
+              "bias": 6.510739687640115,
+              "samples": 288
+            }
+          }
+        }
+      },
+      "paired_mae_reduction_vs": {
+        "means_only": {
+          "1": {
+            "mean_mae_reduction": 0.6991287053870121,
+            "lower_95": 0.3081034150245349,
+            "upper_95": 1.078080275516077,
+            "block_days": 1,
+            "replicates": 2000,
+            "seed": 42,
+            "test_days": 285
+          },
+          "3": {
+            "mean_mae_reduction": 0.6991287053870121,
+            "lower_95": 0.2948607683497358,
+            "upper_95": 1.1206946221526735,
+            "block_days": 3,
+            "replicates": 2000,
+            "seed": 42,
+            "test_days": 285
+          },
+          "7": {
+            "mean_mae_reduction": 0.6991287053870121,
+            "lower_95": 0.2995279999503909,
+            "upper_95": 1.1740427312148838,
+            "block_days": 7,
+            "replicates": 2000,
+            "seed": 42,
+            "test_days": 285
+          },
+          "14": {
+            "mean_mae_reduction": 0.6991287053870121,
+            "lower_95": 0.28561478750496805,
+            "upper_95": 1.1602869350498834,
+            "block_days": 14,
+            "replicates": 2000,
+            "seed": 42,
+            "test_days": 285
+          }
+        },
+        "input_ensemble_mean": {
+          "1": {
+            "mean_mae_reduction": 0.28892776489916155,
+            "lower_95": -0.4069722061096829,
+            "upper_95": 0.9999807339517409,
+            "block_days": 1,
+            "replicates": 2000,
+            "seed": 42,
+            "test_days": 285
+          },
+          "3": {
+            "mean_mae_reduction": 0.28892776489916155,
+            "lower_95": -0.5054390483931737,
+            "upper_95": 1.0532409391802058,
+            "block_days": 3,
+            "replicates": 2000,
+            "seed": 42,
+            "test_days": 285
+          },
+          "7": {
+            "mean_mae_reduction": 0.28892776489916155,
+            "lower_95": -0.6097422221850015,
+            "upper_95": 1.1728985106594283,
+            "block_days": 7,
+            "replicates": 2000,
+            "seed": 42,
+            "test_days": 285
+          },
+          "14": {
+            "mean_mae_reduction": 0.28892776489916155,
+            "lower_95": -0.6440412201433845,
+            "upper_95": 1.3120039897882698,
+            "block_days": 14,
+            "replicates": 2000,
+            "seed": 42,
+            "test_days": 285
+          }
+        },
+        "gfs_global": {
+          "1": {
+            "mean_mae_reduction": 10.34297381753074,
+            "lower_95": 8.408483197982315,
+            "upper_95": 12.29165218469061,
+            "block_days": 1,
+            "replicates": 2000,
+            "seed": 42,
+            "test_days": 285
+          },
+          "3": {
+            "mean_mae_reduction": 10.34297381753074,
+            "lower_95": 7.930478043569098,
+            "upper_95": 12.793629246613884,
+            "block_days": 3,
+            "replicates": 2000,
+            "seed": 42,
+            "test_days": 285
+          },
+          "7": {
+            "mean_mae_reduction": 10.34297381753074,
+            "lower_95": 7.3888530902137495,
+            "upper_95": 13.205384525774418,
+            "block_days": 7,
+            "replicates": 2000,
+            "seed": 42,
+            "test_days": 285
+          },
+          "14": {
+            "mean_mae_reduction": 10.34297381753074,
+            "lower_95": 7.158327586882344,
+            "upper_95": 13.654616687624788,
+            "block_days": 14,
+            "replicates": 2000,
+            "seed": 42,
+            "test_days": 285
+          }
+        }
+      }
+    },
+    "temperature_2m": {
+      "unit": "\u00b0C",
+      "all_hours": {
+        "icon_eu": {
+          "mae": 1.1503216374269005,
+          "rmse": 1.5217497239106772,
+          "bias": -0.7857602339181285,
+          "samples": 6840
+        },
+        "ecmwf_ifs025": {
+          "mae": 1.154546783625731,
+          "rmse": 1.4694406581938642,
+          "bias": -0.21191520467836258,
+          "samples": 6840
+        },
+        "meteofrance_arpege_europe": {
+          "mae": 1.2526169590643275,
+          "rmse": 1.5791259889220015,
+          "bias": -0.9861842105263158,
+          "samples": 6840
+        },
+        "gfs_global": {
+          "mae": 1.1728216374269007,
+          "rmse": 1.5567110891892169,
+          "bias": 0.30630116959064324,
+          "samples": 6840
+        },
+        "input_ensemble_mean": {
+          "mae": 0.7858442982456141,
+          "rmse": 0.9900889982295555,
+          "bias": -0.4193896198830409,
+          "samples": 6840
+        },
+        "means_only": {
+          "mae": 0.6280066769482633,
+          "rmse": 0.8246914752663718,
+          "bias": -0.03436958563983773,
+          "samples": 6840
+        },
+        "means_plus_variance": {
+          "mae": 0.6306256610210287,
+          "rmse": 0.8267923070098074,
+          "bias": -0.04012751625770787,
+          "samples": 6840
+        }
+      },
+      "positive_reference_hours": {
+        "icon_eu": {
+          "mae": 1.1503216374269005,
+          "rmse": 1.5217497239106772,
+          "bias": -0.7857602339181285,
+          "samples": 6840
+        },
+        "ecmwf_ifs025": {
+          "mae": 1.154546783625731,
+          "rmse": 1.4694406581938642,
+          "bias": -0.21191520467836258,
+          "samples": 6840
+        },
+        "meteofrance_arpege_europe": {
+          "mae": 1.2526169590643275,
+          "rmse": 1.5791259889220015,
+          "bias": -0.9861842105263158,
+          "samples": 6840
+        },
+        "gfs_global": {
+          "mae": 1.1728216374269007,
+          "rmse": 1.5567110891892169,
+          "bias": 0.30630116959064324,
+          "samples": 6840
+        },
+        "input_ensemble_mean": {
+          "mae": 0.7858442982456141,
+          "rmse": 0.9900889982295555,
+          "bias": -0.4193896198830409,
+          "samples": 6840
+        },
+        "means_only": {
+          "mae": 0.6280066769482633,
+          "rmse": 0.8246914752663718,
+          "bias": -0.03436958563983773,
+          "samples": 6840
+        },
+        "means_plus_variance": {
+          "mae": 0.6306256610210287,
+          "rmse": 0.8267923070098074,
+          "bias": -0.04012751625770787,
+          "samples": 6840
+        }
+      },
+      "availability_buffered": {
+        "icon_eu": {
+          "mae": 1.1560551558752998,
+          "rmse": 1.5296166899669406,
+          "bias": -0.8154976019184652,
+          "samples": 6672
+        },
+        "ecmwf_ifs025": {
+          "mae": 1.1574040767386091,
+          "rmse": 1.474217875798466,
+          "bias": -0.19757194244604318,
+          "samples": 6672
+        },
+        "meteofrance_arpege_europe": {
+          "mae": 1.252488009592326,
+          "rmse": 1.579246587513382,
+          "bias": -0.9808752997601918,
+          "samples": 6672
+        },
+        "gfs_global": {
+          "mae": 1.179271582733813,
+          "rmse": 1.566854005585761,
+          "bias": 0.32417565947242205,
+          "samples": 6672
+        },
+        "input_ensemble_mean": {
+          "mae": 0.787368854916067,
+          "rmse": 0.9914288609380701,
+          "bias": -0.41744229616306955,
+          "samples": 6672
+        },
+        "means_only": {
+          "mae": 0.6283926678978651,
+          "rmse": 0.825683268747549,
+          "bias": -0.038641742946133255,
+          "samples": 6672
+        },
+        "means_plus_variance": {
+          "mae": 0.6309983448739447,
+          "rmse": 0.827760543913793,
+          "bias": -0.044761846481610044,
+          "samples": 6672
+        }
+      },
+      "monthly": {
+        "2026-01": {
+          "hours": 744,
+          "scores": {
+            "icon_eu": {
+              "mae": 0.6111559139784947,
+              "rmse": 0.8200691683389975,
+              "bias": 0.18400537634408598,
+              "samples": 744
+            },
+            "ecmwf_ifs025": {
+              "mae": 1.0159946236559139,
+              "rmse": 1.2224765538574482,
+              "bias": -0.8603494623655916,
+              "samples": 744
+            },
+            "meteofrance_arpege_europe": {
+              "mae": 0.9506720430107528,
+              "rmse": 1.23826209291599,
+              "bias": -0.7616935483870968,
+              "samples": 744
+            },
+            "gfs_global": {
+              "mae": 0.9029569892473117,
+              "rmse": 1.069481333441891,
+              "bias": -0.5639784946236559,
+              "samples": 744
+            },
+            "input_ensemble_mean": {
+              "mae": 0.6334341397849462,
+              "rmse": 0.7866509546567433,
+              "bias": -0.5005040322580646,
+              "samples": 744
+            },
+            "means_only": {
+              "mae": 0.47661831057770676,
+              "rmse": 0.6095002452851815,
+              "bias": 0.11684479485662536,
+              "samples": 744
+            },
+            "means_plus_variance": {
+              "mae": 0.4780028437963606,
+              "rmse": 0.611905124058699,
+              "bias": 0.12228005367645932,
+              "samples": 744
+            }
+          }
+        },
+        "2026-02": {
+          "hours": 672,
+          "scores": {
+            "icon_eu": {
+              "mae": 0.5553571428571429,
+              "rmse": 0.7420210496308296,
+              "bias": -0.0806547619047619,
+              "samples": 672
+            },
+            "ecmwf_ifs025": {
+              "mae": 0.9867559523809524,
+              "rmse": 1.2224037112727257,
+              "bias": -0.6745535714285713,
+              "samples": 672
+            },
+            "meteofrance_arpege_europe": {
+              "mae": 0.9708333333333334,
+              "rmse": 1.258979651108294,
+              "bias": -0.8038690476190476,
+              "samples": 672
+            },
+            "gfs_global": {
+              "mae": 1.0431547619047619,
+              "rmse": 1.30272151027506,
+              "bias": -0.5035714285714286,
+              "samples": 672
+            },
+            "input_ensemble_mean": {
+              "mae": 0.6893229166666667,
+              "rmse": 0.856677313429764,
+              "bias": -0.5156622023809524,
+              "samples": 672
+            },
+            "means_only": {
+              "mae": 0.47394885228418115,
+              "rmse": 0.637530953572461,
+              "bias": 0.04903831514015448,
+              "samples": 672
+            },
+            "means_plus_variance": {
+              "mae": 0.4746372365218282,
+              "rmse": 0.6392591549618197,
+              "bias": 0.04753468318221189,
+              "samples": 672
+            }
+          }
+        },
+        "2026-03": {
+          "hours": 744,
+          "scores": {
+            "icon_eu": {
+              "mae": 0.8307795698924731,
+              "rmse": 1.0487896249579107,
+              "bias": -0.13319892473118283,
+              "samples": 744
+            },
+            "ecmwf_ifs025": {
+              "mae": 1.0665322580645162,
+              "rmse": 1.319615250215816,
+              "bias": -0.5364247311827957,
+              "samples": 744
+            },
+            "meteofrance_arpege_europe": {
+              "mae": 1.1653225806451613,
+              "rmse": 1.4096251312858634,
+              "bias": -0.7231182795698925,
+              "samples": 744
+            },
+            "gfs_global": {
+              "mae": 0.9672043010752687,
+              "rmse": 1.217568527139056,
+              "bias": -0.011290322580645112,
+              "samples": 744
+            },
+            "input_ensemble_mean": {
+              "mae": 0.7315188172043011,
+              "rmse": 0.9016123922806177,
+              "bias": -0.3510080645161291,
+              "samples": 744
+            },
+            "means_only": {
+              "mae": 0.5793118931166688,
+              "rmse": 0.7619133334754857,
+              "bias": 0.14906907808301662,
+              "samples": 744
+            },
+            "means_plus_variance": {
+              "mae": 0.5755498416697865,
+              "rmse": 0.7555496561754591,
+              "bias": 0.13803983686724686,
+              "samples": 744
+            }
+          }
+        },
+        "2026-04": {
+          "hours": 720,
+          "scores": {
+            "icon_eu": {
+              "mae": 1.1758333333333335,
+              "rmse": 1.5103623553453802,
+              "bias": -0.8575000000000002,
+              "samples": 720
+            },
+            "ecmwf_ifs025": {
+              "mae": 1.2619444444444443,
+              "rmse": 1.608717570682381,
+              "bias": 0.07027777777777772,
+              "samples": 720
+            },
+            "meteofrance_arpege_europe": {
+              "mae": 1.0656944444444445,
+              "rmse": 1.374302853570978,
+              "bias": -0.7343055555555557,
+              "samples": 720
+            },
+            "gfs_global": {
+              "mae": 1.2822222222222224,
+              "rmse": 1.6636723101487132,
+              "bias": 0.43694444444444447,
+              "samples": 720
+            },
+            "input_ensemble_mean": {
+              "mae": 0.7678819444444445,
+              "rmse": 1.0071053990135403,
+              "bias": -0.2711458333333334,
+              "samples": 720
+            },
+            "means_only": {
+              "mae": 0.6684984134732544,
+              "rmse": 0.8754973216839524,
+              "bias": 0.13585970982918313,
+              "samples": 720
+            },
+            "means_plus_variance": {
+              "mae": 0.6679382661566198,
+              "rmse": 0.874400191069931,
+              "bias": 0.1319839700042374,
+              "samples": 720
+            }
+          }
+        },
+        "2026-05": {
+          "hours": 744,
+          "scores": {
+            "icon_eu": {
+              "mae": 1.034274193548387,
+              "rmse": 1.3475635121784941,
+              "bias": -0.718951612903226,
+              "samples": 744
+            },
+            "ecmwf_ifs025": {
+              "mae": 1.2775537634408602,
+              "rmse": 1.5694024957124246,
+              "bias": -0.42110215053763445,
+              "samples": 744
+            },
+            "meteofrance_arpege_europe": {
+              "mae": 1.0651881720430108,
+              "rmse": 1.3803877825116848,
+              "bias": -0.8318548387096776,
+              "samples": 744
+            },
+            "gfs_global": {
+              "mae": 0.980510752688172,
+              "rmse": 1.346266242501432,
+              "bias": 0.3127688172043011,
+              "samples": 744
+            },
+            "input_ensemble_mean": {
+              "mae": 0.7547043010752689,
+              "rmse": 0.953048483179278,
+              "bias": -0.41478494623655915,
+              "samples": 744
+            },
+            "means_only": {
+              "mae": 0.5513612752352782,
+              "rmse": 0.7326644807477154,
+              "bias": -0.05698849753936843,
+              "samples": 744
+            },
+            "means_plus_variance": {
+              "mae": 0.5505843411309193,
+              "rmse": 0.730843429784122,
+              "bias": -0.06708123251815235,
+              "samples": 744
+            }
+          }
+        },
+        "2026-06": {
+          "hours": 720,
+          "scores": {
+            "icon_eu": {
+              "mae": 1.7104166666666667,
+              "rmse": 2.127867346533718,
+              "bias": -1.63625,
+              "samples": 720
+            },
+            "ecmwf_ifs025": {
+              "mae": 1.250138888888889,
+              "rmse": 1.6379229733618936,
+              "bias": 0.2731944444444445,
+              "samples": 720
+            },
+            "meteofrance_arpege_europe": {
+              "mae": 1.5481944444444444,
+              "rmse": 1.888197994561658,
+              "bias": -1.2790277777777777,
+              "samples": 720
+            },
+            "gfs_global": {
+              "mae": 1.1665277777777778,
+              "rmse": 1.595336084410499,
+              "bias": 0.5626388888888889,
+              "samples": 720
+            },
+            "input_ensemble_mean": {
+              "mae": 0.8516666666666667,
+              "rmse": 1.0589196210708767,
+              "bias": -0.519861111111111,
+              "samples": 720
+            },
+            "means_only": {
+              "mae": 0.669256393161221,
+              "rmse": 0.8652779984765048,
+              "bias": -0.2530451179783788,
+              "samples": 720
+            },
+            "means_plus_variance": {
+              "mae": 0.6712792530308036,
+              "rmse": 0.861133028034293,
+              "bias": -0.2507749332105363,
+              "samples": 720
+            }
+          }
+        },
+        "2026-07": {
+          "hours": 744,
+          "scores": {
+            "icon_eu": {
+              "mae": 1.5169354838709677,
+              "rmse": 1.899667486466983,
+              "bias": -1.3405913978494626,
+              "samples": 744
+            },
+            "ecmwf_ifs025": {
+              "mae": 1.137231182795699,
+              "rmse": 1.5151697090794245,
+              "bias": 0.1743279569892473,
+              "samples": 744
+            },
+            "meteofrance_arpege_europe": {
+              "mae": 1.578763440860215,
+              "rmse": 1.9191311878370985,
+              "bias": -1.253225806451613,
+              "samples": 744
+            },
+            "gfs_global": {
+              "mae": 1.2813172043010752,
+              "rmse": 1.8524794486112068,
+              "bias": 0.5974462365591398,
+              "samples": 744
+            },
+            "input_ensemble_mean": {
+              "mae": 0.9036962365591397,
+              "rmse": 1.1035796776122282,
+              "bias": -0.4555107526881719,
+              "samples": 744
+            },
+            "means_only": {
+              "mae": 0.7206685495266465,
+              "rmse": 0.923543816742987,
+              "bias": -0.23070962972268327,
+              "samples": 744
+            },
+            "means_plus_variance": {
+              "mae": 0.7339455663945197,
+              "rmse": 0.9395190983304866,
+              "bias": -0.2384313237136989,
+              "samples": 744
+            }
+          }
+        },
+        "2026-08": {
+          "hours": 744,
+          "scores": {
+            "icon_eu": {
+              "mae": 1.4455645161290323,
+              "rmse": 1.7818491965202286,
+              "bias": -1.349059139784946,
+              "samples": 744
+            },
+            "ecmwf_ifs025": {
+              "mae": 1.1653225806451613,
+              "rmse": 1.4788836242901429,
+              "bias": -0.3080645161290322,
+              "samples": 744
+            },
+            "meteofrance_arpege_europe": {
+              "mae": 1.4831989247311828,
+              "rmse": 1.7996527442815182,
+              "bias": -1.4004032258064518,
+              "samples": 744
+            },
+            "gfs_global": {
+              "mae": 0.9228494623655914,
+              "rmse": 1.2275401576770013,
+              "bias": -0.20645161290322575,
+              "samples": 744
+            },
+            "input_ensemble_mean": {
+              "mae": 0.9163306451612904,
+              "rmse": 1.1070339622380097,
+              "bias": -0.8159946236559139,
+              "samples": 744
+            },
+            "means_only": {
+              "mae": 0.6835658470105255,
+              "rmse": 0.8667219542335736,
+              "bias": -0.5436314009172357,
+              "samples": 744
+            },
+            "means_plus_variance": {
+              "mae": 0.6950114461554948,
+              "rmse": 0.8769090334820117,
+              "bias": -0.5598798014540903,
+              "samples": 744
+            }
+          }
+        },
+        "2026-09": {
+          "hours": 720,
+          "scores": {
+            "icon_eu": {
+              "mae": 1.4770833333333333,
+              "rmse": 1.799710624887605,
+              "bias": -1.2131944444444447,
+              "samples": 720
+            },
+            "ecmwf_ifs025": {
+              "mae": 1.2895833333333333,
+              "rmse": 1.635130813659194,
+              "bias": 0.47152777777777777,
+              "samples": 720
+            },
+            "meteofrance_arpege_europe": {
+              "mae": 1.4340277777777777,
+              "rmse": 1.7649716711607584,
+              "bias": -1.0465277777777777,
+              "samples": 720
+            },
+            "gfs_global": {
+              "mae": 1.863472222222222,
+              "rmse": 2.251551933913831,
+              "bias": 1.7251388888888888,
+              "samples": 720
+            },
+            "input_ensemble_mean": {
+              "mae": 0.8370833333333334,
+              "rmse": 1.076264598558882,
+              "bias": -0.01576388888888888,
+              "samples": 720
+            },
+            "means_only": {
+              "mae": 0.7854115169161042,
+              "rmse": 1.0185252184069014,
+              "bias": 0.2598742304651533,
+              "samples": 720
+            },
+            "means_plus_variance": {
+              "mae": 0.7855144119465017,
+              "rmse": 1.0186038916310935,
+              "bias": 0.25279436882971895,
+              "samples": 720
+            }
+          }
+        },
+        "2026-10": {
+          "hours": 288,
+          "scores": {
+            "icon_eu": {
+              "mae": 1.0659722222222223,
+              "rmse": 1.3413042988905324,
+              "bias": -0.5319444444444444,
+              "samples": 288
+            },
+            "ecmwf_ifs025": {
+              "mae": 0.9854166666666669,
+              "rmse": 1.2774758097296577,
+              "bias": -0.4548611111111111,
+              "samples": 288
+            },
+            "meteofrance_arpege_europe": {
+              "mae": 1.2364583333333334,
+              "rmse": 1.4848190125399123,
+              "bias": -1.056597222222222,
+              "samples": 288
+            },
+            "gfs_global": {
+              "mae": 1.5815972222222223,
+              "rmse": 1.8477557708985484,
+              "bias": 1.3059027777777779,
+              "samples": 288
+            },
+            "input_ensemble_mean": {
+              "mae": 0.7362847222222223,
+              "rmse": 0.9884972109779123,
+              "bias": -0.18437499999999996,
+              "samples": 288
+            },
+            "means_only": {
+              "mae": 0.7215869350257507,
+              "rmse": 0.9125786372398168,
+              "bias": 0.1732346593060171,
+              "samples": 288
+            },
+            "means_plus_variance": {
+              "mae": 0.722549801733728,
+              "rmse": 0.9131316153491157,
+              "bias": 0.16415258751316797,
+              "samples": 288
+            }
+          }
+        }
+      },
+      "paired_mae_reduction_vs": {
+        "means_only": {
+          "1": {
+            "mean_mae_reduction": -0.0026189840727653363,
+            "lower_95": -0.005056772468005876,
+            "upper_95": -4.15803200931664e-05,
+            "block_days": 1,
+            "replicates": 2000,
+            "seed": 42,
+            "test_days": 285
+          },
+          "3": {
+            "mean_mae_reduction": -0.0026189840727653363,
+            "lower_95": -0.005533123839034989,
+            "upper_95": 0.00043315969269674807,
+            "block_days": 3,
+            "replicates": 2000,
+            "seed": 42,
+            "test_days": 285
+          },
+          "7": {
+            "mean_mae_reduction": -0.0026189840727653363,
+            "lower_95": -0.005968341744421084,
+            "upper_95": 0.0005618758113491908,
+            "block_days": 7,
+            "replicates": 2000,
+            "seed": 42,
+            "test_days": 285
+          },
+          "14": {
+            "mean_mae_reduction": -0.0026189840727653363,
+            "lower_95": -0.0061558884093212566,
+            "upper_95": 0.0005607914576322519,
+            "block_days": 14,
+            "replicates": 2000,
+            "seed": 42,
+            "test_days": 285
+          }
+        },
+        "input_ensemble_mean": {
+          "1": {
+            "mean_mae_reduction": 0.15521863722458534,
+            "lower_95": 0.1323597669701578,
+            "upper_95": 0.17808759725133555,
+            "block_days": 1,
+            "replicates": 2000,
+            "seed": 42,
+            "test_days": 285
+          },
+          "3": {
+            "mean_mae_reduction": 0.15521863722458534,
+            "lower_95": 0.1265516909846654,
+            "upper_95": 0.18218417779074764,
+            "block_days": 3,
+            "replicates": 2000,
+            "seed": 42,
+            "test_days": 285
+          },
+          "7": {
+            "mean_mae_reduction": 0.15521863722458534,
+            "lower_95": 0.11924734090917086,
+            "upper_95": 0.18890527507151503,
+            "block_days": 7,
+            "replicates": 2000,
+            "seed": 42,
+            "test_days": 285
+          },
+          "14": {
+            "mean_mae_reduction": 0.15521863722458534,
+            "lower_95": 0.10989504645623968,
+            "upper_95": 0.19489033586957724,
+            "block_days": 14,
+            "replicates": 2000,
+            "seed": 42,
+            "test_days": 285
+          }
+        },
+        "gfs_global": {
+          "1": {
+            "mean_mae_reduction": 0.5421959764058719,
+            "lower_95": 0.48001284595989235,
+            "upper_95": 0.6084080346424017,
+            "block_days": 1,
+            "replicates": 2000,
+            "seed": 42,
+            "test_days": 285
+          },
+          "3": {
+            "mean_mae_reduction": 0.5421959764058719,
+            "lower_95": 0.46082443155954217,
+            "upper_95": 0.6332136013358358,
+            "block_days": 3,
+            "replicates": 2000,
+            "seed": 42,
+            "test_days": 285
+          },
+          "7": {
+            "mean_mae_reduction": 0.5421959764058719,
+            "lower_95": 0.43732551194169317,
+            "upper_95": 0.6541461010636204,
+            "block_days": 7,
+            "replicates": 2000,
+            "seed": 42,
+            "test_days": 285
+          },
+          "14": {
+            "mean_mae_reduction": 0.5421959764058719,
+            "lower_95": 0.42384450698891296,
+            "upper_95": 0.6735549798917885,
+            "block_days": 14,
+            "replicates": 2000,
+            "seed": 42,
+            "test_days": 285
+          }
+        }
+      }
+    }
+  },
+  "availability_note": "Calendar holdout starts January 1. Full previous-year ERA5 labels arrive with delay, so the separate January 8-onward subset is the availability-buffered evaluation. Neither reconstructs an exact operational release-time ledger.",
+  "inference_note": "Paired circular daily-block intervals condition on frozen models, are marginal without multiplicity adjustment, and do not include selection/refitting uncertainty or guarantee validity under seasonal nonstationarity.",
+  "as_of": "2026-10-18"
+}

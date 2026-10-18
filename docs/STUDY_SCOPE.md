@@ -34,6 +34,12 @@ Open-Meteo 15-minute output may be interpolated depending on model/region. This 
 
 ## Scope boundaries and version history
 
+### Cross-year study
+
+The [2025-to-2026 evaluation](YEARLY_RESULTS.md) uses ICON-EU, ECMWF IFS, ARPEGE Europe and **GFS Global** consistently in both years. GEM has internal gaps in its 2026 archive, and JMA GSM lacks the needed radiation, so the replacement was chosen from field availability before evaluating 2026 errors. GFS is therefore an input and raw-model baseline in that study, not an excluded comparator. ERA5 remains the reference. The earlier within-2025 GEM-based results below remain a separate experiment.
+
+All of 2025 is used for final fitting after chronological 2025-only selection. Models stay frozen across 2026; the calendar holdout is January onward through the latest complete common day. ERA5 delay means full late-December labels would not all have been available for a real January 1 deployment, so a January 8-onward subset is also reported. This is calendar-year generalization, not an exact historical deployment ledger.
+
 The historical workflow verifies radiation and temperature, using radiation, temperature and cloud-cover forecast predictors. It does not reproduce a private measured-PV system, its results, its trained models or its source data. The separate synthetic daily power example also uses four fictional members and explicit variance, but remains a toy physical model.
 
 The earlier two-member standard-deviation report is retained as [legacy evidence](results/historical-two-model-legacy.json). It is superseded for the stated research question. The revised study changes both ensemble composition and the candidate estimator menu, so comparisons against that legacy report do not isolate a causal benefit from member count. The controlled three-versus-four sensitivity uses the same revised menu and dates.

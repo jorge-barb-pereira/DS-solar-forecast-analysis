@@ -8,6 +8,7 @@ This edition was developed in **October 2026**. It demonstrates general forecast
 
 ## What it demonstrates
 
+- A complete 2025 training year and frozen 2026 year-to-date test, with all selection confined to 2025.
 - Four named weather-model inputs, explicit sample variance in ML, and a controlled three-member comparison against historical ERA5 data.
 - Reproducible normalized power series at 15-minute intervals.
 - Issue-time feature availability, lagged observations and rolling summaries.
@@ -45,6 +46,10 @@ For live weather downloads, see [Open-Meteo setup and interpretation](docs/OPEN_
 
 For real archived weather, run `python -m solar_forecast.history --start-date 2025-01-01 --end-date 2025-12-31` with local location settings. See the [historical evaluation protocol](docs/HISTORICAL_BENCHMARK.md). This evaluates weather against reanalysis; it does not establish real PV-power accuracy.
 
+**[Train on full 2025, test on 2026 year-to-date](docs/YEARLY_RESULTS.md)** is the cross-year study. The snapshot through **October 12, 2026** has 285 test days; later ERA5 days were not complete on the October 18 retrieval. Four expanding 2025 folds select settings, the models are refitted on all 8,760 training hours and frozen, and no 2026 refitting occurs. Radiation MAE is 18.30 W/m² with means versus 17.60 with variance; its small advantage over the raw ensemble mean is uncertain. This study uses GFS instead of GEM to avoid incomplete archives, consistently in both years.
+
+![Frozen cross-year scores and monthly errors](docs/figures/yearly-2025-2026.png)
+
 **[Read the four-model historical results](docs/HISTORICAL_RESULTS.md)** and [study scope / endpoint selection](docs/STUDY_SCOPE.md). The primary ensemble uses ICON-EU, ECMWF IFS, ARPEGE Europe and GEM Global, with a controlled three-member sensitivity. Across 201 rolling test days, adding variance lowers trained-model radiation MAE, while the simple four-member average remains better. These are retrospective weather-verification findings, not measured PV validation.
 
 ![Historical rolling scores and uncertainty](docs/figures/historical-robustness.png)
@@ -63,6 +68,7 @@ For the daily multi-output study, run `python -m solar_forecast.day_ahead`. It *
 | `src/solar_forecast/day_ahead.py` | Daily multi-output study, variance ablation and daily uncertainty bands |
 | `src/solar_forecast/history.py` | Optional historical weather post-processing and excluded-model comparison |
 | `src/solar_forecast/robustness.py` | Rolling origins, paired circular-block intervals and aggregate public reporting |
+| `src/solar_forecast/yearly.py` | Full-year selection/refit, frozen next-year evaluation and latest complete-data cutoff |
 | `tests/` | Analytic checks, causality perturbations and full synthetic experiment |
 | `docs/` | Methods, synthetic power results and sanitized historical weather results |
 | `tools/` | Public-file allowlist and artifact checks |

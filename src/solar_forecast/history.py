@@ -120,6 +120,22 @@ def _physical(prediction, variable):
     )
 
 
+def candidate_models():
+    """Fixed estimator menu shared by within-year and year-to-year protocols."""
+    models = {
+        f"ridge_{alpha:g}": make_pipeline(StandardScaler(), Ridge(alpha=alpha))
+        for alpha in (0.1, 10.0, 1000.0)
+    }
+    models["gradient_boosting"] = HistGradientBoostingRegressor(
+        max_iter=100,
+        max_leaf_nodes=15,
+        l2_regularization=1.0,
+        early_stopping=False,
+        random_state=42,
+    )
+    return models
+
+
 def evaluate_history(frame, partitions=None, input_models=INPUT_MODELS):
     """Tune using earlier ERA5 targets; GFS appears only in final comparator scores.
 
@@ -187,35 +203,16 @@ def evaluate_history(frame, partitions=None, input_models=INPUT_MODELS):
         selection = {}
         for variant, x in features.items():
             candidates = []
-            for alpha in (0.1, 10.0, 1000.0):
-                model = make_pipeline(StandardScaler(), Ridge(alpha=alpha))
+            for name, model in candidate_models().items():
                 model.fit(x.iloc[train], actual[train])
                 prediction = _physical(model.predict(x.iloc[validation]), variable)
                 candidates.append(
                     (
                         metrics(actual[validation], prediction)["mae"],
-                        f"ridge_{alpha:g}",
+                        name,
                         model,
                     )
                 )
-            boosting = HistGradientBoostingRegressor(
-                max_iter=100,
-                max_leaf_nodes=15,
-                l2_regularization=1.0,
-                early_stopping=False,
-                random_state=42,
-            )
-            boosting.fit(x.iloc[train], actual[train])
-            candidates.append(
-                (
-                    metrics(
-                        actual[validation],
-                        _physical(boosting.predict(x.iloc[validation]), variable),
-                    )["mae"],
-                    "gradient_boosting",
-                    boosting,
-                )
-            )
             _, chosen, fitted = min(
                 candidates, key=lambda candidate: (candidate[0], candidate[1])
             )
