@@ -2,7 +2,7 @@
 
 [![Forecast checks](https://github.com/jorge-barb-pereira/solar-forecast-analysis/actions/workflows/forecast.yml/badge.svg)](https://github.com/jorge-barb-pereira/solar-forecast-analysis/actions/workflows/forecast.yml)
 
-An independently written portfolio demonstration of solar-power forecasting, causal feature engineering and chronological evaluation. **Every observation is synthetic.** The project runs offline and needs no credentials, external service or site information.
+An independently written portfolio demonstration of solar-power forecasting, causal feature engineering and chronological evaluation. **All power observations and published evaluation results are synthetic.** The default experiment runs offline. An optional Open-Meteo adapter downloads public weather forecasts using location settings supplied locally.
 
 This edition was developed in **October 2026**. It demonstrates general forecasting methods; it does not reproduce an operational installation, a deployment or measured forecasting performance.
 
@@ -14,6 +14,7 @@ This edition was developed in **October 2026**. It demonstrates general forecast
 - Chronological training, validation, calibration and test periods with target-boundary purging.
 - Validation-only selection, a separate empirical forecast-error band and a frozen final holdout evaluation.
 - Explicit error units, baseline skill and tests for future-data leakage.
+- Optional Open-Meteo calls for current forecasts, previous-day offsets and archived individual model runs, including weather-model comparisons.
 
 ![Synthetic forecast analysis](docs/figures/forecast-analysis.png)
 
@@ -37,11 +38,14 @@ Outputs are `synthetic-series.csv`, `forecast.csv`, `metrics.json` and `forecast
 
 ## Repository map
 
+For live weather downloads, see [Open-Meteo setup and interpretation](docs/OPEN_METEO.md). That workflow exports only selected weather variables and safe provenance under ignored `output/`; it does not use real power measurements or change the synthetic benchmark.
+
 | Path | Purpose |
 | --- | --- |
 | `src/solar_forecast/data.py` | Synthetic signal and strict timestamp/value checks |
 | `src/solar_forecast/features.py` | Causal features and chronological partitions |
 | `src/solar_forecast/study.py` | Baselines, selection, error metrics and residual bands |
+| `src/solar_forecast/open_meteo.py` | Optional public weather API adapter with local settings |
 | `tests/` | Analytic checks, causality perturbations and full synthetic experiment |
 | `docs/` | Methods, limitations, validation and generated synthetic results |
 | `tools/` | Public-file allowlist and artifact checks |

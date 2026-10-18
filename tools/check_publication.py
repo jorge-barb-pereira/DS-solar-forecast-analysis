@@ -18,8 +18,17 @@ allowed_files = {
     ".github/workflows/forecast.yml",
     "tools/check_publication.py",
     "tests/test_forecasting.py",
+    "tests/test_open_meteo.py",
+    "docs/OPEN_METEO.md",
 }
-allowed_package = {"__init__.py", "__main__.py", "data.py", "features.py", "study.py"}
+allowed_package = {
+    "__init__.py",
+    "__main__.py",
+    "data.py",
+    "features.py",
+    "study.py",
+    "open_meteo.py",
+}
 checked = 0
 for p in root.rglob("*"):
     if not p.is_file():
@@ -41,9 +50,11 @@ for p in root.rglob("*"):
 print(f"PASS: {checked} files in reviewed publication allowlist")
 
 if (root / ".git").exists():
-    tracked = subprocess.check_output(
-        ["git", "-C", str(root), "ls-files", "-z"]
-    ).decode("utf-8").split("\0")
+    tracked = (
+        subprocess.check_output(["git", "-C", str(root), "ls-files", "-z"])
+        .decode("utf-8")
+        .split("\0")
+    )
     for path in filter(None, tracked):
         rel = Path(path)
         if not (

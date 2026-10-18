@@ -9,3 +9,8 @@ The default 120-day, seed-42 experiment selected gradient boosting on validation
 GitHub Actions runs tests, the publication allowlist and a complete CLI experiment on Python 3.11 and 3.12 and stores the generated synthetic outputs as workflow artifacts. The root badge links to actual run status. Generated figures are visually reviewed before inclusion.
 
 Successful tests demonstrate software behavior on synthetic data. No historical operational model is executed, no model pickle is loaded and no real-world forecast claim is validated. Dependency versions, generator parameters and chronological boundaries are saved in each metrics JSON.
+# Open-Meteo adapter checks
+
+The optional weather workflow has offline tests for request modes, model column identity, UTC interval spacing, missing values, malformed responses, invalid configuration, metadata exclusion and redacted transport failures. An ambiguous multi-model response is rejected. The test suite never contacts the provider.
+
+Manual live smoke checks in October 2026 used a neutral test location independent of any project data: hourly current forecasts, hourly previous-day forecasts, an archived single run and 15-minute global-model comparisons. These checks verify acquisition and response structure, not weather accuracy or historical power-model skill. Regional-model coverage can cause missing model columns and is explicitly rejected.
