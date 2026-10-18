@@ -20,6 +20,13 @@ class DataTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 synthetic_series(days)
 
+    def test_timestamp_resolution_does_not_change_spacing_validation(self):
+        series = synthetic_series(30)
+        for unit in ["ns", "us"]:
+            converted = series.copy()
+            converted.index = converted.index.as_unit(unit)
+            validate_series(converted)
+
     def test_missing_duplicate_or_disordered_timestamps_rejected(self):
         s = synthetic_series(30)
         for invalid in [s.drop(s.index[100]), pd.concat([s, s.iloc[:1]]), s.iloc[::-1]]:

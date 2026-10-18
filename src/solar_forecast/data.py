@@ -38,7 +38,9 @@ def validate_series(series):
         or not series.index.is_monotonic_increasing
     ):
         raise ValueError("Timestamps must be unique and increasing")
-    if not np.all(np.diff(series.index.asi8) == pd.Timedelta(minutes=15).value):
+    if not np.all(
+        series.index[1:] - series.index[:-1] == pd.Timedelta(minutes=15)
+    ):
         raise ValueError("Expected a complete regular 15-minute grid")
     values = np.asarray(series, dtype=float)
     if not np.all(np.isfinite(values)) or np.any((values < 0) | (values > 1)):
