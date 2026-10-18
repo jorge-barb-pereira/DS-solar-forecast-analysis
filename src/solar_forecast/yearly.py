@@ -130,7 +130,16 @@ def fit_training_year(frame, year=2025):
 
 def available_prefix(forecasts, reference):
     """Remove only trailing incomplete whole days, never gaps within the study."""
-    if not forecasts.index.equals(reference.index) or len(reference) % 24:
+    index = reference.index
+    if (
+        not isinstance(index, pd.DatetimeIndex)
+        or str(index.tz) != "UTC"
+        or reference.empty
+        or not forecasts.index.equals(index)
+        or len(index) % 24
+        or index[0] != index[0].normalize()
+        or not np.all(index[1:] - index[:-1] == pd.Timedelta(hours=1))
+    ):
         raise ValueError("Expected aligned complete hourly calendar-day grids")
     joined = forecasts.join(reference)
     valid = (
@@ -198,6 +207,8 @@ def acquire_test_year(*, latitude, longitude, as_of, fetcher=fetch_weather):
 
 
 def evaluate_test_year(frozen, training_protocol, frame, repetitions=2000):
+    if tuple(training_protocol["input_models"]) != INPUT_MODELS:
+        raise ValueError("Frozen training and test input model identities must match")
     year = training_protocol["training_year"] + 1
     validate_year(frame, year)
     features = weather_features(frame, input_models=INPUT_MODELS, comparator=None)
@@ -219,7 +230,19 @@ def evaluate_test_year(frozen, training_protocol, frame, repetitions=2000):
         "last_test_time": frame.index[-1].isoformat(),
         "test_hours": len(frame),
         "test_days": len(frame) // 24,
-        "test_status": "Year-to-date; not a complete test year",
+        "test_status": (
+            "Complete calendar test year"
+            if frame.index[-1]
+            == pd.Timestamp(f"{year+1}-01-01", tz="UTC") - pd.Timedelta(hours=1)
+            else "Year-to-date; not a complete test year"
+        ),
+        "inference": {
+            "bootstrap_replicates": repetitions,
+            "seed": 42,
+            "primary_block_days": 7,
+            "sensitivity_block_days": [1, 3, 7, 14],
+            "minimum_test_days": 14,
+        },
         "model_updates_during_test": False,
         "variables": {},
         "availability_note": "Calendar holdout starts January 1. Full previous-year ERA5 labels arrive with delay, so the separate January 8-onward subset is the availability-buffered evaluation. Neither reconstructs an exact operational release-time ledger.",
@@ -269,9 +292,12 @@ def evaluate_test_year(frozen, training_protocol, frame, repetitions=2000):
         report["variables"][variable] = {
             "unit": "W/m²" if variable == "shortwave_radiation" else "°C",
             "all_hours": scores,
-            "positive_reference_hours": {
-                m: metrics(actual[active], predictions[m][active]) for m in methods
-            },
+            "positive_reference_hours_count": int(active.sum()),
+            "positive_reference_hours": (
+                {m: metrics(actual[active], predictions[m][active]) for m in methods}
+                if active.any()
+                else {}
+            ),
             "availability_buffered": (
                 {
                     m: metrics(actual[buffered], predictions[m][buffered])
@@ -299,19 +325,19 @@ def write_report(report, destination):
     )
     methods = list(report["variables"][TARGETS[0]]["all_hours"])
     text = [
-        "# Train on 2025, test on 2026 year-to-date",
+        f"# Train on {report['training']['training_year']}, test on {report['test_year']}",
         "",
         "Four-model mean/variance post-processing of archived weather forecasts, verified against ERA5 reanalysis. This is not measured PV-power validation. Location values and raw hourly inputs/predictions remain local.",
         "",
-        f"Training uses all **{report['training']['training_hours']:,} hourly records from 2025**. Four expanding folds entirely within 2025 select each estimator, which is refitted on all 2025 rows and frozen. No 2026 labels enter selection, scaling or fitting.",
+        f"Training uses all **{report['training']['training_hours']:,} hourly records from {report['training']['training_year']}**. Four expanding folds entirely within that year select each estimator, which is refitted on all training-year rows and frozen. No test-year labels enter selection, scaling or fitting.",
         "",
-        f"The calendar holdout spans **{report['first_test_time'][:10]} to {report['last_test_time'][:10]}**, with **{report['test_days']} days / {report['test_hours']:,} hours**. This is 2026 year-to-date, not a full 2026 study. The endpoint is the latest complete day shared by all sources, selected by availability rather than error.",
+        f"The calendar holdout spans **{report['first_test_time'][:10]} to {report['last_test_time'][:10]}**, with **{report['test_days']} days / {report['test_hours']:,} hours**. Status: {report['test_status']}. The end date is the last complete day in the evaluated dataset; a supplied cache is not checked for newer provider data.",
         "",
         "Inputs are ICON-EU, ECMWF IFS 0.25°, ARPEGE Europe and GFS Global. Variance is computed independently at each valid hour across the four members (sample variance, ddof=1). GFS is an input member and is also scored as a raw-model baseline; ERA5 is the verification reference. The estimator menu is unchanged: three scaled Ridge alpha values and fixed histogram gradient boosting.",
         "",
         report["input_model_change"],
         "",
-        "## Frozen 2026 scores",
+        f"## Frozen {report['test_year']} scores",
         "",
         "| Method | Radiation MAE (W/m²) | Temperature MAE (°C) |",
         "| --- | ---: | ---: |",
@@ -323,7 +349,7 @@ def write_report(report, destination):
         "",
         "## Paired differences",
         "",
-        "Positive MAE reduction favors the variance model. Approximate 95% intervals below use 2,000 paired circular daily-block replicates, seven-day blocks and seed 42. The JSON also includes 1-, 3- and 14-day sensitivity. These are conditional, marginal intervals; seasonal nonstationarity and the artificial circular end-to-start join limit interpretation.",
+        f"Positive MAE reduction favors the variance model. When at least 14 test days are available, approximate 95% intervals use {report['inference']['bootstrap_replicates']:,} paired circular daily-block replicates, seven-day blocks and seed {report['inference']['seed']}. The JSON also includes 1-, 3- and 14-day sensitivity. Shorter studies omit intervals. These are conditional, marginal intervals; seasonal nonstationarity and the artificial circular end-to-start join limit interpretation.",
         "",
         "| Variable | Comparator | MAE reduction | Approximate 95% interval |",
         "| --- | --- | ---: | --- |",
@@ -381,10 +407,12 @@ def write_report(report, destination):
         axes[1, col].tick_params(axis="x", rotation=45)
         axes[1, col].set(
             ylabel="Monthly MAE (" + values["unit"] + ")",
-            xlabel="2026 month; latest month may be partial",
+            xlabel=f"{report['test_year']} month; latest month may be partial",
         )
         axes[1, col].legend(fontsize=8)
-    fig.suptitle("Train: full 2025 · Frozen test: 2026 year-to-date · ERA5 reference")
+    fig.suptitle(
+        f"Train: full {report['training']['training_year']} · Frozen test: {report['test_year']} · ERA5 reference"
+    )
     fig.savefig(destination / "figures/yearly-2025-2026.png", dpi=160)
     plt.close(fig)
 

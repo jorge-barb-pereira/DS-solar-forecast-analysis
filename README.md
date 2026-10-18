@@ -6,6 +6,8 @@ An independently written portfolio demonstration of solar-power forecasting, wea
 
 This edition was developed in **October 2026**. It demonstrates general forecasting methods; it does not reproduce an operational installation, a deployment or measured forecasting performance.
 
+The [final code and scientific review](docs/FINAL_REVIEW.md) records the audit findings, corrections, verification and remaining research limitations.
+
 ## What it demonstrates
 
 - A complete 2025 training year and frozen 2026 year-to-date test, with all selection confined to 2025.
@@ -18,7 +20,7 @@ This edition was developed in **October 2026**. It demonstrates general forecast
 - Explicit error units, baseline skill and tests for future-data leakage.
 - Optional Open-Meteo calls for current forecasts, previous-day offsets and archived individual model runs, including weather-model comparisons.
 - A separate 96-step daily forecasting study using previous-day/week profiles and weather-model variance, with an explicit variance-feature ablation.
-- A historical weather benchmark against ERA5, with GFS excluded from fitting and tuning, rolling-origin evaluation and paired block-bootstrap intervals. Raw downloads and location settings stay local.
+- A within-2025 weather benchmark against ERA5, with GFS excluded from fitting and tuning, rolling-origin evaluation and paired block-bootstrap intervals. The cross-year study instead includes GFS, consistently in both years. Raw downloads and location settings stay local.
 
 ![Synthetic forecast analysis](docs/figures/forecast-analysis.png)
 

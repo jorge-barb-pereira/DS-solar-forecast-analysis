@@ -1,6 +1,8 @@
 """Complete training year, frozen evaluation and availability cutoff checks."""
 
 import unittest
+import tempfile
+from pathlib import Path
 from unittest.mock import Mock
 
 import numpy as np
@@ -13,6 +15,7 @@ from solar_forecast.yearly import (
     fit_training_year,
     selection_folds,
     validate_year,
+    write_report,
 )
 
 
@@ -102,6 +105,58 @@ class YearlyTests(unittest.TestCase):
         reference.iloc[24] = np.nan
         with self.assertRaises(ValueError):
             available_prefix(forecast, reference)
+
+    def test_availability_rejects_non_calendar_grids(self):
+        valid = self.testing.iloc[:48]
+        grids = [
+            valid.index + pd.Timedelta(hours=1),
+            valid.index.tz_localize(None),
+            valid.index[::-1],
+            valid.index[:24].append(valid.index[:24]),
+            pd.Index(range(48)),
+        ]
+        for index in grids:
+            with self.subTest(index_type=type(index).__name__):
+                frame = pd.DataFrame({"forecast": np.ones(48)}, index=index)
+                reference = frame.rename(columns={"forecast": "reference"})
+                with self.assertRaises(ValueError):
+                    available_prefix(frame, reference)
+        with self.assertRaises(ValueError):
+            available_prefix(valid.iloc[:0], valid.iloc[:0])
+
+    def test_zero_radiation_subset_is_explicitly_empty(self):
+        frame = self.testing.iloc[:24].copy()
+        frame["shortwave_radiation_era5"] = 0.0
+        report, _ = evaluate_test_year(self.frozen, self.protocol, frame)
+        radiation = report["variables"]["shortwave_radiation"]
+        self.assertEqual(radiation["positive_reference_hours_count"], 0)
+        self.assertEqual(radiation["positive_reference_hours"], {})
+        self.assertEqual(radiation["all_hours"]["means_only"]["samples"], 24)
+        self.assertEqual(radiation["paired_mae_reduction_vs"], {})
+
+    def test_mismatched_training_member_identity_is_rejected(self):
+        protocol = dict(self.protocol, input_models=["different_model"] * 4)
+        with self.assertRaisesRegex(ValueError, "identities"):
+            evaluate_test_year(self.frozen, protocol, self.testing)
+
+    def test_report_uses_actual_replicates_and_cache_scope(self):
+        report, _ = evaluate_test_year(
+            self.frozen, self.protocol, self.testing, repetitions=100
+        )
+        with tempfile.TemporaryDirectory() as folder:
+            write_report(report, folder)
+            text = (Path(folder) / "YEARLY_RESULTS.md").read_text(encoding="utf-8")
+        self.assertIn("100 paired circular", text)
+        self.assertIn("cache is not checked for newer provider data", text)
+        self.assertNotIn("2,000 paired", text)
+
+    def test_complete_test_year_status(self):
+        testing = self.training.copy()
+        testing.index = pd.date_range("2026-01-01", periods=8760, freq="h", tz="UTC")
+        report, _ = evaluate_test_year(
+            self.frozen, self.protocol, testing, repetitions=100
+        )
+        self.assertEqual(report["test_status"], "Complete calendar test year")
 
 
 if __name__ == "__main__":

@@ -1,10 +1,10 @@
-# Train on 2025, test on 2026 year-to-date
+# Train on 2025, test on 2026
 
 Four-model mean/variance post-processing of archived weather forecasts, verified against ERA5 reanalysis. This is not measured PV-power validation. Location values and raw hourly inputs/predictions remain local.
 
-Training uses all **8,760 hourly records from 2025**. Four expanding folds entirely within 2025 select each estimator, which is refitted on all 2025 rows and frozen. No 2026 labels enter selection, scaling or fitting.
+Training uses all **8,760 hourly records from 2025**. Four expanding folds entirely within that year select each estimator, which is refitted on all training-year rows and frozen. No test-year labels enter selection, scaling or fitting.
 
-The calendar holdout spans **2026-01-01 to 2026-10-12**, with **285 days / 6,840 hours**. This is 2026 year-to-date, not a full 2026 study. The endpoint is the latest complete day shared by all sources, selected by availability rather than error.
+The calendar holdout spans **2026-01-01 to 2026-10-12**, with **285 days / 6,840 hours**. Status: Year-to-date; not a complete test year. The end date is the last complete day in the evaluated dataset; a supplied cache is not checked for newer provider data.
 
 Inputs are ICON-EU, ECMWF IFS 0.25°, ARPEGE Europe and GFS Global. Variance is computed independently at each valid hour across the four members (sample variance, ddof=1). GFS is an input member and is also scored as a raw-model baseline; ERA5 is the verification reference. The estimator menu is unchanged: three scaled Ridge alpha values and fixed histogram gradient boosting.
 
@@ -24,7 +24,7 @@ The earlier within-2025 study uses GEM Global and excludes GFS. This cross-year 
 
 ## Paired differences
 
-Positive MAE reduction favors the variance model. Approximate 95% intervals below use 2,000 paired circular daily-block replicates, seven-day blocks and seed 42. The JSON also includes 1-, 3- and 14-day sensitivity. These are conditional, marginal intervals; seasonal nonstationarity and the artificial circular end-to-start join limit interpretation.
+Positive MAE reduction favors the variance model. When at least 14 test days are available, approximate 95% intervals use 2,000 paired circular daily-block replicates, seven-day blocks and seed 42. The JSON also includes 1-, 3- and 14-day sensitivity. Shorter studies omit intervals. These are conditional, marginal intervals; seasonal nonstationarity and the artificial circular end-to-start join limit interpretation.
 
 | Variable | Comparator | MAE reduction | Approximate 95% interval |
 | --- | --- | ---: | --- |

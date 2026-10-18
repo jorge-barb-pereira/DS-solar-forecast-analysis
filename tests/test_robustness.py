@@ -79,9 +79,14 @@ class RobustnessTests(unittest.TestCase):
             index=pd.date_range("2050-01-01", periods=240 * 24, freq="h", tz="UTC"),
         )
         frame.attrs["location"] = "PRIVATE_LOCATION_SENTINEL"
+        # A valid reference can have no positive radiation (e.g. polar night).
+        frame["shortwave_radiation_era5"] = 0.0
         report = aggregate_report(frame, repetitions=100)
         self.assertNotIn("PRIVATE_LOCATION_SENTINEL", json.dumps(report))
         self.assertEqual(report["rolling"]["test_days"], 76)
+        radiation = report["rolling"]["variables"]["shortwave_radiation"]
+        self.assertEqual(radiation["positive_reference_hours_count"], 0)
+        self.assertEqual(radiation["positive_reference_radiation_hours"], {})
         for variable, scores in report["rolling"]["variables"].items():
             for baseline, sensitivity in scores["paired_mae_reduction_vs"].items():
                 expected = (

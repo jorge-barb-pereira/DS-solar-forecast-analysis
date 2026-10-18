@@ -158,12 +158,16 @@ def aggregate_report(frame, repetitions=2000, input_models=INPUT_MODELS):
             if variable == "shortwave_radiation"
             else np.ones(len(actual), dtype=bool)
         )
-        active_scores = {
-            name: metrics(
-                actual[active], combined[variable + "_" + name].to_numpy()[active]
-            )
-            for name in methods
-        }
+        active_scores = (
+            {
+                name: metrics(
+                    actual[active], combined[variable + "_" + name].to_numpy()[active]
+                )
+                for name in methods
+            }
+            if active.any()
+            else {}
+        )
         intervals = {}
         for baseline in COMPARISONS:
             fold_errors = []
@@ -185,6 +189,7 @@ def aggregate_report(frame, repetitions=2000, input_models=INPUT_MODELS):
         result["rolling"]["variables"][variable] = {
             "unit": fixed["variables"][variable]["unit"],
             "pooled_test": scores,
+            "positive_reference_hours_count": int(active.sum()),
             (
                 "positive_reference_radiation_hours"
                 if variable == "shortwave_radiation"

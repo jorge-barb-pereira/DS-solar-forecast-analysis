@@ -1840,6 +1840,7 @@
             "samples": 4824
           }
         },
+        "positive_reference_hours_count": 2519,
         "positive_reference_radiation_hours": {
           "icon_eu": {
             "mae": 34.712981341802305,
@@ -2059,6 +2060,7 @@
             "samples": 4824
           }
         },
+        "positive_reference_hours_count": 4824,
         "all_hours": {
           "icon_eu": {
             "mae": 1.3855928689883912,
@@ -2294,6 +2296,7 @@
             "samples": 4824
           }
         },
+        "positive_reference_hours_count": 2519,
         "positive_reference_radiation_hours": {
           "icon_eu": {
             "mae": 34.712981341802305,
@@ -2501,6 +2504,7 @@
             "samples": 4824
           }
         },
+        "positive_reference_hours_count": 4824,
         "all_hours": {
           "icon_eu": {
             "mae": 1.3855928689883912,

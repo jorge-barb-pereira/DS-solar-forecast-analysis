@@ -13,6 +13,7 @@ allowed_files = {
     "docs/METHODS.md",
     "docs/PUBLICATION_SCOPE.md",
     "docs/VALIDATION.md",
+    "docs/FINAL_REVIEW.md",
     "docs/figures/forecast-analysis.png",
     "docs/results/metrics.json",
     ".github/workflows/forecast.yml",

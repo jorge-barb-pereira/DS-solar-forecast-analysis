@@ -4,7 +4,7 @@
 
 Do differences between three or four numerical weather predictions contain useful information beyond their ensemble means when predicting historical weather conditions?
 
-The primary study uses **four forecast centres**: DWD ICON-EU, ECMWF IFS 0.25°, Météo-France ARPEGE Europe and ECCC GEM Global. A prespecified three-member subset excludes GEM Global. NOAA GFS Global is a fifth source used only as a comparator; ERA5 is the retrospective verification reference, never an input forecast member.
+The within-2025 study uses **four forecast centres**: DWD ICON-EU, ECMWF IFS 0.25°, Météo-France ARPEGE Europe and ECCC GEM Global. A prespecified three-member subset excludes GEM Global. NOAA GFS Global is a fifth source used only as a comparator in that study. The cross-year study described below instead includes GFS and omits GEM, consistently in both years. ERA5 is always the retrospective verification reference, never an input forecast member.
 
 For each valid timestamp and each weather variable, the mean is the arithmetic average over all declared members. The variance feature is
 

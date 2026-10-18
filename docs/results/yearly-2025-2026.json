@@ -244,6 +244,18 @@
   "test_hours": 6840,
   "test_days": 285,
   "test_status": "Year-to-date; not a complete test year",
+  "inference": {
+    "bootstrap_replicates": 2000,
+    "seed": 42,
+    "primary_block_days": 7,
+    "sensitivity_block_days": [
+      1,
+      3,
+      7,
+      14
+    ],
+    "minimum_test_days": 14
+  },
   "model_updates_during_test": false,
   "variables": {
     "shortwave_radiation": {
@@ -292,6 +304,7 @@
           "samples": 6840
         }
       },
+      "positive_reference_hours_count": 3801,
       "positive_reference_hours": {
         "icon_eu": {
           "mae": 41.71086556169429,
@@ -1015,6 +1028,7 @@
           "samples": 6840
         }
       },
+      "positive_reference_hours_count": 6840,
       "positive_reference_hours": {
         "icon_eu": {
           "mae": 1.1503216374269005,

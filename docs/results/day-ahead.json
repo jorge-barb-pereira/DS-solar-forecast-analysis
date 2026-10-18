@@ -111,7 +111,7 @@
     }
   },
   "variance_ablation_mae_reduction": -0.0006185235639164267,
-  "variance_ablation_interpretation": "Positive reduction favors spread on this fixed synthetic holdout; no real-world benefit is asserted.",
+  "variance_ablation_interpretation": "Positive reduction favors variance on this fixed synthetic holdout; no real-world benefit is asserted.",
   "seed": 42,
   "synthetic_days": 180,
   "versions": {
