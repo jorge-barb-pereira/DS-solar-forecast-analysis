@@ -14,3 +14,7 @@ Successful tests demonstrate software behavior on synthetic data. No historical 
 The optional weather workflow has offline tests for request modes, model column identity, UTC interval spacing, missing values, malformed responses, invalid configuration, metadata exclusion and redacted transport failures. An ambiguous multi-model response is rejected. The test suite never contacts the provider.
 
 Manual live smoke checks in October 2026 used a neutral test location independent of any project data: hourly current forecasts, hourly previous-day forecasts, an archived single run and 15-minute global-model comparisons. These checks verify acquisition and response structure, not weather accuracy or historical power-model skill. Regional-model coverage can cause missing model columns and is explicitly rejected.
+
+## Daily ensemble study
+
+The daily study adds analytic two-/three-member summary checks, rejects incomplete or misaligned days, verifies that target-day power cannot enter its own predictors, and confirms that changing held-out labels cannot change training-fold selection, calibration radius or frozen predictions. Both daily variants run in CI. The complete suite has 28 tests. Published daily results and figures are generated solely from the included fictional weather/power generator; see [daily methods and interpretation](DAY_AHEAD.md).

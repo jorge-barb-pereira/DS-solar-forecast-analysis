@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "solar-forecast-analysis"
-version = "0.1.0"
-description = "Synthetic solar-power forecasting with causal features and chronological evaluation"
+version = "0.2.0"
+description = "Solar forecasting studies with weather-model disagreement, chronological evaluation and optional Open-Meteo acquisition"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = ["numpy>=1.26,<3", "pandas>=2.2,<4", "scikit-learn>=1.5,<2", "matplotlib>=3.8,<4"]

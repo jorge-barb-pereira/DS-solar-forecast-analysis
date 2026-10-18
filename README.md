@@ -15,6 +15,7 @@ This edition was developed in **October 2026**. It demonstrates general forecast
 - Validation-only selection, a separate empirical forecast-error band and a frozen final holdout evaluation.
 - Explicit error units, baseline skill and tests for future-data leakage.
 - Optional Open-Meteo calls for current forecasts, previous-day offsets and archived individual model runs, including weather-model comparisons.
+- A separate 96-step daily forecasting study using previous-day/week profiles and weather-model disagreement, with an explicit spread-feature ablation.
 
 ![Synthetic forecast analysis](docs/figures/forecast-analysis.png)
 
@@ -40,12 +41,18 @@ Outputs are `synthetic-series.csv`, `forecast.csv`, `metrics.json` and `forecast
 
 For live weather downloads, see [Open-Meteo setup and interpretation](docs/OPEN_METEO.md). That workflow exports only selected weather variables and safe provenance under ignored `output/`; it does not use real power measurements or change the synthetic benchmark.
 
+For the daily multi-output study, run `python -m solar_forecast.day_ahead`. It **uses inter-model spread as a forecasting input** and compares against the same model without spread. See [daily methods, normalization and limitations](docs/DAY_AHEAD.md) and the [fixed synthetic report](docs/results/day-ahead.json).
+
+![Synthetic daily forecast and weather-spread comparison](docs/figures/day-ahead.png)
+
 | Path | Purpose |
 | --- | --- |
 | `src/solar_forecast/data.py` | Synthetic signal and strict timestamp/value checks |
 | `src/solar_forecast/features.py` | Causal features and chronological partitions |
 | `src/solar_forecast/study.py` | Baselines, selection, error metrics and residual bands |
 | `src/solar_forecast/open_meteo.py` | Optional public weather API adapter with local settings |
+| `src/solar_forecast/ensemble.py` | Reusable inter-model means, standard deviations, ranges and pairwise differences |
+| `src/solar_forecast/day_ahead.py` | Daily multi-output study, spread ablation and daily uncertainty bands |
 | `tests/` | Analytic checks, causality perturbations and full synthetic experiment |
 | `docs/` | Methods, limitations, validation and generated synthetic results |
 | `tools/` | Public-file allowlist and artifact checks |

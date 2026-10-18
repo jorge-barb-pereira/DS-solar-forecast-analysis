@@ -1,0 +1,122 @@
+{
+  "dataset": "synthetic",
+  "forecast_steps": 96,
+  "step_minutes": 15,
+  "issue_time": "UTC midnight, with toy observations available immediately",
+  "partitions": {
+    "train": {
+      "days": 102,
+      "first_issue": "2050-01-08T00:00:00+00:00",
+      "last_issue": "2050-04-19T00:00:00+00:00"
+    },
+    "calibration": {
+      "days": 34,
+      "first_issue": "2050-04-21T00:00:00+00:00",
+      "last_issue": "2050-05-24T00:00:00+00:00"
+    },
+    "test": {
+      "days": 35,
+      "first_issue": "2050-05-26T00:00:00+00:00",
+      "last_issue": "2050-06-29T00:00:00+00:00"
+    }
+  },
+  "variants": {
+    "means_only": {
+      "alpha": 10.0,
+      "training_cv": [
+        {
+          "alpha": 0.1,
+          "mean_fold_mae": 0.027190573150937244
+        },
+        {
+          "alpha": 10.0,
+          "mean_fold_mae": 0.02145900028115624
+        },
+        {
+          "alpha": 1000.0,
+          "mean_fold_mae": 0.027794111007426875
+        }
+      ],
+      "holdout": {
+        "mae": 0.02827654008502313,
+        "rmse": 0.05593597247191505,
+        "bias": 0.0009573453268140133,
+        "samples": 3360
+      },
+      "holdout_active": {
+        "mae": 0.05775633719494085,
+        "rmse": 0.07994252850167978,
+        "bias": 0.0019554287526413884,
+        "samples": 1645
+      },
+      "interval": {
+        "nominal_daily_coverage": 0.9,
+        "radius": 0.22231426282642386,
+        "observed_daily_coverage": 0.9142857142857143,
+        "observed_pointwise_coverage": 0.993452380952381,
+        "mean_width": 0.17654349546644155,
+        "interpretation": "Empirical daily maximum-error band; temporal dependence prevents a coverage guarantee."
+      }
+    },
+    "means_plus_spread": {
+      "alpha": 10.0,
+      "training_cv": [
+        {
+          "alpha": 0.1,
+          "mean_fold_mae": 0.02704641447608085
+        },
+        {
+          "alpha": 10.0,
+          "mean_fold_mae": 0.022233745996986604
+        },
+        {
+          "alpha": 1000.0,
+          "mean_fold_mae": 0.028702610879035664
+        }
+      ],
+      "holdout": {
+        "mae": 0.028727811406343364,
+        "rmse": 0.05743603999149093,
+        "bias": 0.0013300177964948436,
+        "samples": 3360
+      },
+      "holdout_active": {
+        "mae": 0.05867808287253112,
+        "rmse": 0.08208639380228484,
+        "bias": 0.00271663209496819,
+        "samples": 1645
+      },
+      "interval": {
+        "nominal_daily_coverage": 0.9,
+        "radius": 0.2321341586939687,
+        "observed_daily_coverage": 0.9142857142857143,
+        "observed_pointwise_coverage": 0.99375,
+        "mean_width": 0.1821382294283325,
+        "interpretation": "Empirical daily maximum-error band; temporal dependence prevents a coverage guarantee."
+      }
+    }
+  },
+  "baselines": {
+    "persistence": {
+      "mae": 0.08675238168642617,
+      "rmse": 0.16248191076660612,
+      "bias": -0.0018337718938535163,
+      "samples": 3360
+    },
+    "weekly_persistence": {
+      "mae": 0.08254776665597967,
+      "rmse": 0.15488240733345254,
+      "bias": -0.002771782279539565,
+      "samples": 3360
+    }
+  },
+  "spread_ablation_mae_reduction": -0.0004512713213202339,
+  "spread_ablation_interpretation": "Positive reduction favors spread on this fixed synthetic holdout; no real-world benefit is asserted.",
+  "seed": 42,
+  "synthetic_days": 180,
+  "versions": {
+    "numpy": "2.3.5",
+    "pandas": "2.3.3",
+    "scikit-learn": "1.9.1"
+  }
+}
