@@ -16,7 +16,7 @@ Use 60–366 complete days, subject to provider/model archive availability. The 
 
 | Source | Role | Used in fitting or model selection? |
 | --- | --- | --- |
-| ICON-EU and ECMWF IFS 0.25° | Forecast input variables | Yes, as predictors |
+| ICON-EU, ECMWF IFS 0.25°, ARPEGE Europe and GEM Global | Forecast input variables | Yes, as predictors |
 | ERA5 | Historical verification reference | Earlier periods supply training/validation labels; test labels supply final scores only |
 | GFS Global | Excluded forecast comparator | No; only scored on the final test period |
 
@@ -28,9 +28,9 @@ This comparison is **verification relative to reanalysis**, not measured ground 
 
 The requested period is divided chronologically into 60% training, 20% validation and 20% final testing, with 24 unused hours before each boundary. The complete expected hourly date range is checked before analysis.
 
-For each of radiation and air temperature, two Ridge pipelines use weather means, or means plus inter-model standard deviations, across the input models. All three input weather variables (radiation, temperature and cloud cover) and known clock-hour sine/cosine are available as predictors. Scaling is fitted only on the training block. Alpha is selected from {0.1, 10, 1000} using earlier validation MAE, after which the fitted model is frozen. Negative predicted radiation is clipped to zero.
+For each of radiation and air temperature, two feature pipelines use weather means, or means plus inter-model sample variances, across the input models. All three input weather variables (radiation, temperature and cloud cover) and known clock-hour sine/cosine are available as predictors. Scaling is fitted only on the training block. Candidates are scaled Ridge with alpha {0.1, 10, 1000} and fixed histogram gradient boosting (100 iterations, 15 leaves, L2=1, no internal early stopping); the estimator is selected using earlier validation MAE, after which the fitted model is frozen. Negative predicted radiation is clipped to zero.
 
-The same holdout scores both variants, both raw input models, their unweighted mean and the excluded GFS comparator. Reports retain every score, including cases where a simple baseline wins. Parameters, reference, model roles and metrics are fixed before examining the holdout. No favorable reference is selected afterwards.
+The same holdout scores both variants, all four raw input models, their unweighted mean and the excluded GFS comparator. Reports retain every score, including cases where a simple baseline wins. Parameters, reference, model roles and metrics are fixed before examining the holdout. No favorable reference is selected afterwards.
 
 Metrics are MAE, RMSE and signed bias in W/m² for shortwave radiation and °C for temperature. A lower radiation MAE can reflect nighttime zeros; inspect the hourly prediction export and daylight behavior before drawing operational conclusions. A single chronological holdout does not establish multi-season robustness, statistical significance or repeatability across sites. The benchmark does not calculate a confidence interval for score differences.
 
@@ -49,7 +49,7 @@ After downloading the local hourly dataset, run:
 ```bash
 python -m solar_forecast.robustness
 # After reviewing the aggregate outputs for release:
-python -m solar_forecast.robustness --publish
+python -m solar_forecast.robustness --compare-three --publish
 ```
 
 The default reads `output/history/weather.csv` and writes only aggregate artifacts under ignored `output/history-robustness/`. The explicit publication flag writes the reviewed aggregate report, JSON and plot into `docs/`; it does not upload or export hourly data. Never substitute an internal dataset into this workflow.
@@ -59,3 +59,5 @@ Rolling evaluation starts with 120 training days and 30 validation days, with se
 Paired error differences are first averaged by UTC day. Circular blocks are resampled independently within each fold, preserving matched errors, test-day weights and local serial dependence. Primary intervals use seven-day blocks and 2,000 replicates; sensitivity uses 1, 3 and 14 days. The seed is fixed. Intervals condition on fitted models, do not refit pipelines, and are marginal without multiplicity adjustment. They rely on short-range within-window dependence assumptions and include artificial end-to-start joins. This is retrospective exploration of an already inspected year, not new independent confirmation.
 
 Weather attribution: [Open-Meteo](https://open-meteo.com/) (CC BY 4.0). Technical sources: [Previous Runs](https://open-meteo.com/en/docs/previous-runs-api), [Historical Weather / ERA5](https://open-meteo.com/en/docs/historical-weather-api), [Historical Forecast](https://open-meteo.com/en/docs/historical-forecast-api), [Single Runs](https://open-meteo.com/en/docs/single-runs-api). Respect current [provider usage terms](https://open-meteo.com/en/terms).
+
+The current research question and exact endpoint roles are specified in [study scope](STUDY_SCOPE.md). The primary ensemble has four declared members; the optional three-member comparison uses an identical complete-data grid. The earlier two-member report is legacy material.

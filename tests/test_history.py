@@ -131,6 +131,21 @@ class HistoricalEvaluationTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             weather_features(frame, input_models=(*INPUT_MODELS, COMPARATOR))
 
+    def test_three_and_four_members_and_explicit_variance_features(self):
+        frame = self.fixture()
+        for models in (INPUT_MODELS[:3], INPUT_MODELS):
+            features = weather_features(frame, input_models=models)
+            values = frame[["temperature_2m_" + model for model in models]].to_numpy()
+            np.testing.assert_allclose(
+                features["means_plus_variance"].temperature_2m_variance,
+                values.var(axis=1, ddof=1),
+            )
+            self.assertNotIn("temperature_2m_variance", features["means_only"])
+        with self.assertRaises(ValueError):
+            weather_features(frame, input_models=INPUT_MODELS[:2])
+        with self.assertRaises(ValueError):
+            weather_features(frame.drop(columns="temperature_2m_" + INPUT_MODELS[-1]))
+
     def test_comparator_and_holdout_changes_cannot_change_selection(self):
         frame = self.fixture()
         report, predictions = evaluate_history(frame)
@@ -145,7 +160,7 @@ class HistoricalEvaluationTests(unittest.TestCase):
                 report["variables"][variable]["selection"],
                 updated["variables"][variable]["selection"],
             )
-            for variant in ("means_only", "means_plus_spread"):
+            for variant in ("means_only", "means_plus_variance"):
                 np.testing.assert_array_equal(
                     predictions[variable + "_" + variant],
                     updated_predictions[variable + "_" + variant],

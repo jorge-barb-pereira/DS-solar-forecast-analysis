@@ -30,6 +30,8 @@ allowed_files = {
     "docs/results/historical-robustness.json",
     "docs/figures/historical-robustness.png",
     "tests/test_robustness.py",
+    "docs/STUDY_SCOPE.md",
+    "docs/results/historical-two-model-legacy.json",
 }
 allowed_package = {
     "__init__.py",

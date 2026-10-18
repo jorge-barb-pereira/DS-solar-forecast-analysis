@@ -26,72 +26,72 @@
       "training_cv": [
         {
           "alpha": 0.1,
-          "mean_fold_mae": 0.027190573150937244
+          "mean_fold_mae": 0.02626826850281579
         },
         {
           "alpha": 10.0,
-          "mean_fold_mae": 0.02145900028115624
+          "mean_fold_mae": 0.02086371268478843
         },
         {
           "alpha": 1000.0,
-          "mean_fold_mae": 0.027794111007426875
+          "mean_fold_mae": 0.02664413353866831
         }
       ],
       "holdout": {
-        "mae": 0.02827654008502313,
-        "rmse": 0.05593597247191505,
-        "bias": 0.0009573453268140133,
+        "mae": 0.02928873889146947,
+        "rmse": 0.05596769137609093,
+        "bias": -0.0010829305100291304,
         "samples": 3360
       },
       "holdout_active": {
-        "mae": 0.05775633719494085,
-        "rmse": 0.07994252850167978,
-        "bias": 0.0019554287526413884,
+        "mae": 0.059823807097469546,
+        "rmse": 0.07998786049983883,
+        "bias": -0.0022119431694212015,
         "samples": 1645
       },
       "interval": {
         "nominal_daily_coverage": 0.9,
-        "radius": 0.22231426282642386,
-        "observed_daily_coverage": 0.9142857142857143,
-        "observed_pointwise_coverage": 0.993452380952381,
-        "mean_width": 0.17654349546644155,
+        "radius": 0.19390702358568457,
+        "observed_daily_coverage": 0.8,
+        "observed_pointwise_coverage": 0.9916666666666667,
+        "mean_width": 0.15821821922692322,
         "interpretation": "Empirical daily maximum-error band; temporal dependence prevents a coverage guarantee."
       }
     },
-    "means_plus_spread": {
+    "means_plus_variance": {
       "alpha": 10.0,
       "training_cv": [
         {
           "alpha": 0.1,
-          "mean_fold_mae": 0.02704641447608085
+          "mean_fold_mae": 0.02518645425282945
         },
         {
           "alpha": 10.0,
-          "mean_fold_mae": 0.022233745996986604
+          "mean_fold_mae": 0.021335039839919637
         },
         {
           "alpha": 1000.0,
-          "mean_fold_mae": 0.028702610879035664
+          "mean_fold_mae": 0.02785793229641202
         }
       ],
       "holdout": {
-        "mae": 0.028727811406343364,
-        "rmse": 0.05743603999149093,
-        "bias": 0.0013300177964948436,
+        "mae": 0.029907262455385896,
+        "rmse": 0.057562668999239584,
+        "bias": -0.0016083558013714383,
         "samples": 3360
       },
       "holdout_active": {
-        "mae": 0.05867808287253112,
-        "rmse": 0.08208639380228484,
-        "bias": 0.00271663209496819,
+        "mae": 0.061087174376958424,
+        "rmse": 0.08226736934653177,
+        "bias": -0.0032851522751416594,
         "samples": 1645
       },
       "interval": {
         "nominal_daily_coverage": 0.9,
-        "radius": 0.2321341586939687,
-        "observed_daily_coverage": 0.9142857142857143,
-        "observed_pointwise_coverage": 0.99375,
-        "mean_width": 0.1821382294283325,
+        "radius": 0.19727666001283228,
+        "observed_daily_coverage": 0.7428571428571429,
+        "observed_pointwise_coverage": 0.9898809523809524,
+        "mean_width": 0.16059725057901625,
         "interpretation": "Empirical daily maximum-error band; temporal dependence prevents a coverage guarantee."
       }
     }
@@ -110,8 +110,8 @@
       "samples": 3360
     }
   },
-  "spread_ablation_mae_reduction": -0.0004512713213202339,
-  "spread_ablation_interpretation": "Positive reduction favors spread on this fixed synthetic holdout; no real-world benefit is asserted.",
+  "variance_ablation_mae_reduction": -0.0006185235639164267,
+  "variance_ablation_interpretation": "Positive reduction favors spread on this fixed synthetic holdout; no real-world benefit is asserted.",
   "seed": 42,
   "synthetic_days": 180,
   "versions": {

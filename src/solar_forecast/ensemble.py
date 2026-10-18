@@ -32,6 +32,7 @@ def weather_summaries(frame, models, variables):
             raise ValueError("Weather members must contain finite aligned values")
         result[f"{variable}_mean"] = values.mean(axis=1)
         result[f"{variable}_std"] = values.std(axis=1, ddof=1)
+        result[f"{variable}_variance"] = values.var(axis=1, ddof=1)
         result[f"{variable}_range"] = np.ptp(values, axis=1)
         if len(models) == 2:
             result[f"{variable}_abs_difference"] = np.abs(values[:, 0] - values[:, 1])

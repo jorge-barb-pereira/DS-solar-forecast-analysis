@@ -1,4 +1,4 @@
-"""Offline daily multi-output forecasting and weather-spread ablation."""
+"""Offline daily multi-output forecasting and weather-variance ablation."""
 
 import argparse
 import importlib.metadata
@@ -15,7 +15,7 @@ from sklearn.preprocessing import StandardScaler
 from .ensemble import weather_summaries
 from .study import metrics, residual_radius
 
-MODELS = ("model_a", "model_b", "model_c")
+MODELS = ("model_a", "model_b", "model_c", "model_d")
 WEATHER = ("shortwave_radiation", "temperature_2m")
 
 
@@ -89,13 +89,13 @@ def daily_samples(frame):
     )
     summaries = weather_summaries(frame, MODELS, WEATHER)
     means = summaries[[v + "_mean" for v in WEATHER]].to_numpy().reshape(-1, 192)
-    spread = summaries[[v + "_std" for v in WEATHER]].to_numpy().reshape(-1, 192)
+    spread = summaries[[v + "_variance" for v in WEATHER]].to_numpy().reshape(-1, 192)
     # At midnight D, D-1 and D-7 are observed; all D weather members are assumed issued.
     base = np.concatenate([index_power[6:-1], index_power[:-7], means[7:]], axis=1)
     return {
         "issued_at": frame.index[::96][7:],
         "means_only": base,
-        "means_plus_spread": np.concatenate([base, spread[7:]], axis=1),
+        "means_plus_variance": np.concatenate([base, spread[7:]], axis=1),
         "target_index": index_power[7:],
         "envelope": envelope[7:],
         "actual": power[7:],
@@ -162,7 +162,7 @@ def evaluate_daily(samples):
     forecasts = {}
     actual = samples["actual"][test]
     envelope = samples["envelope"]
-    for name in ("means_only", "means_plus_spread"):
+    for name in ("means_only", "means_plus_variance"):
         model, alpha, scores = tune_daily(
             samples[name][train], samples["target_index"][train], envelope[train]
         )
@@ -202,11 +202,11 @@ def evaluate_daily(samples):
         for name in ("persistence", "weekly_persistence")
     }
     reference = report["variants"]["means_only"]["holdout"]["mae"]
-    report["spread_ablation_mae_reduction"] = (
-        reference - report["variants"]["means_plus_spread"]["holdout"]["mae"]
+    report["variance_ablation_mae_reduction"] = (
+        reference - report["variants"]["means_plus_variance"]["holdout"]["mae"]
     )
-    report["spread_ablation_interpretation"] = (
-        "Positive reduction favors spread on this fixed synthetic holdout; no real-world benefit is asserted."
+    report["variance_ablation_interpretation"] = (
+        "Positive reduction favors variance on this fixed synthetic holdout; no real-world benefit is asserted."
     )
     records = []
     for day, sample in enumerate(test):
@@ -261,8 +261,8 @@ def main():
     fig, ax = plt.subplots(figsize=(11, 4), layout="constrained")
     ax.fill_between(
         preview.valid_time_utc,
-        preview.means_plus_spread_lower,
-        preview.means_plus_spread_upper,
+        preview.means_plus_variance_lower,
+        preview.means_plus_variance_upper,
         alpha=0.3,
         label="Empirical daily band",
     )
@@ -272,11 +272,11 @@ def main():
     ax.plot(preview.valid_time_utc, preview.means_only, label="Weather means")
     ax.plot(
         preview.valid_time_utc,
-        preview.means_plus_spread,
-        label="Weather means + spread",
+        preview.means_plus_variance,
+        label="Weather means + variance",
     )
     ax.set(
-        title="Synthetic 96-step daily forecasting: weather disagreement ablation",
+        title="Synthetic 96-step daily forecasting: weather variance ablation",
         ylabel="Power (p.u.)",
         xlabel="UTC valid time",
     )
@@ -288,8 +288,8 @@ def main():
             {
                 "variants": report["variants"],
                 "baselines": report["baselines"],
-                "spread_ablation_mae_reduction": report[
-                    "spread_ablation_mae_reduction"
+                "variance_ablation_mae_reduction": report[
+                    "variance_ablation_mae_reduction"
                 ],
             },
             indent=2,

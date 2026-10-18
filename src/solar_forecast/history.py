@@ -9,6 +9,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 from sklearn.linear_model import Ridge
+from sklearn.ensemble import HistGradientBoostingRegressor
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 
@@ -16,15 +17,31 @@ from .ensemble import weather_summaries
 from .open_meteo import VARIABLES, WeatherError, fetch_weather
 from .study import metrics
 
-INPUT_MODELS = ("icon_eu", "ecmwf_ifs025")
+INPUT_MODELS = ("icon_eu", "ecmwf_ifs025", "meteofrance_arpege_europe", "gem_global")
+THREE_MODEL_INPUTS = INPUT_MODELS[:3]
 COMPARATOR = "gfs_global"
 TARGETS = ("shortwave_radiation", "temperature_2m")
 
 
 def acquire_history(
-    *, latitude, longitude, start_date, end_date, fetcher=fetch_weather
+    *,
+    latitude,
+    longitude,
+    start_date,
+    end_date,
+    input_models=INPUT_MODELS,
+    fetcher=fetch_weather,
 ):
     """Fetch equal-offset forecasts and explicit ERA5; strip metadata via adapter."""
+    if (
+        len(input_models) not in (3, 4)
+        or len(set(input_models)) != len(input_models)
+        or COMPARATOR in input_models
+        or "era5" in input_models
+    ):
+        raise ValueError(
+            "Choose three or four distinct input models excluding GFS and ERA5"
+        )
     common = dict(
         latitude=latitude, longitude=longitude, start_date=start_date, end_date=end_date
     )
@@ -32,7 +49,7 @@ def acquire_history(
         **common,
         mode="previous-runs",
         previous_days=1,
-        models=",".join((*INPUT_MODELS, COMPARATOR)),
+        models=",".join((*input_models, COMPARATOR)),
     )
     reference, reference_meta = fetcher(
         **common, mode="historical-weather", models="era5"
@@ -41,7 +58,7 @@ def acquire_history(
         raise WeatherError("Forecast and reanalysis grids do not match.")
     for variable in VARIABLES:
         ref_unit = reference_meta["units"][variable + "_era5"]
-        for model in (*INPUT_MODELS, COMPARATOR):
+        for model in (*input_models, COMPARATOR):
             if forecast_meta["units"][f"{variable}_previous_day1_{model}"] != ref_unit:
                 raise WeatherError("Forecast and reanalysis units do not match.")
     weather = weather.rename(
@@ -61,6 +78,10 @@ def weather_features(frame, input_models=INPUT_MODELS, comparator=COMPARATOR):
         raise ValueError(
             "Input models, comparator and verification reference must be distinct"
         )
+    if len(input_models) not in (3, 4) or len(set(input_models)) != len(input_models):
+        raise ValueError(
+            "Historical studies require three or four distinct input weather models"
+        )
     if not isinstance(frame.index, pd.DatetimeIndex) or str(frame.index.tz) != "UTC":
         raise ValueError("Use a UTC weather index")
     if not np.all(frame.index[1:] - frame.index[:-1] == pd.Timedelta(hours=1)):
@@ -76,9 +97,9 @@ def weather_features(frame, input_models=INPUT_MODELS, comparator=COMPARATOR):
     means = summary[[v + "_mean" for v in VARIABLES]]
     return {
         "means_only": means.join(clock),
-        "means_plus_spread": means.join(summary[[v + "_std" for v in VARIABLES]]).join(
-            clock
-        ),
+        "means_plus_variance": means.join(
+            summary[[v + "_variance" for v in VARIABLES]]
+        ).join(clock),
     }
 
 
@@ -99,13 +120,13 @@ def _physical(prediction, variable):
     )
 
 
-def evaluate_history(frame, partitions=None):
+def evaluate_history(frame, partitions=None, input_models=INPUT_MODELS):
     """Tune using earlier ERA5 targets; GFS appears only in final comparator scores.
 
     This measures weather error relative to reanalysis, not measured PV error.
     Previous-day offsets are provider-defined, not an exact publication-time ledger.
     """
-    features = weather_features(frame)
+    features = weather_features(frame, input_models)
     if not np.isfinite(frame.to_numpy(dtype=float)).all():
         raise ValueError("Historical benchmark requires finite weather values")
     parts = historical_partitions(frame.index) if partitions is None else partitions
@@ -129,7 +150,8 @@ def evaluate_history(frame, partitions=None):
     report = {
         "task": "historical weather verification, not PV-power validation",
         "verification_reference": "ERA5 reanalysis; not station observations",
-        "input_models": list(INPUT_MODELS),
+        "input_models": list(input_models),
+        "variance_definition": "Sample variance across all declared input models, ddof=1; squared physical units",
         "excluded_comparator": COMPARATOR,
         "forecast_offset_days": 1,
         "variables": {},
@@ -150,12 +172,12 @@ def evaluate_history(frame, partitions=None):
     for variable in TARGETS:
         actual = frame[variable + "_era5"].to_numpy()
         scores = {}
-        for model in (*INPUT_MODELS, COMPARATOR):
+        for model in (*input_models, COMPARATOR):
             scores[model] = metrics(
                 actual[test], frame[variable + "_" + model].iloc[test].to_numpy()
             )
             forecasts[variable + "_" + model] = frame[variable + "_" + model].iloc[test]
-        mean = frame[[variable + "_" + m for m in INPUT_MODELS]].mean(axis=1).to_numpy()
+        mean = frame[[variable + "_" + m for m in input_models]].mean(axis=1).to_numpy()
         scores["input_ensemble_mean"] = metrics(actual[test], mean[test])
         forecasts[variable + "_input_ensemble_mean"] = mean[test]
         forecasts[variable + "_era5"] = actual[test]
@@ -170,24 +192,46 @@ def evaluate_history(frame, partitions=None):
                 model.fit(x.iloc[train], actual[train])
                 prediction = _physical(model.predict(x.iloc[validation]), variable)
                 candidates.append(
-                    (metrics(actual[validation], prediction)["mae"], alpha, model)
+                    (
+                        metrics(actual[validation], prediction)["mae"],
+                        f"ridge_{alpha:g}",
+                        model,
+                    )
                 )
-            _, alpha, fitted = min(
+            boosting = HistGradientBoostingRegressor(
+                max_iter=100,
+                max_leaf_nodes=15,
+                l2_regularization=1.0,
+                early_stopping=False,
+                random_state=42,
+            )
+            boosting.fit(x.iloc[train], actual[train])
+            candidates.append(
+                (
+                    metrics(
+                        actual[validation],
+                        _physical(boosting.predict(x.iloc[validation]), variable),
+                    )["mae"],
+                    "gradient_boosting",
+                    boosting,
+                )
+            )
+            _, chosen, fitted = min(
                 candidates, key=lambda candidate: (candidate[0], candidate[1])
             )
             prediction = _physical(fitted.predict(x.iloc[test]), variable)
             scores[variant] = metrics(actual[test], prediction)
             forecasts[variable + "_" + variant] = prediction
             selection[variant] = {
-                "alpha": alpha,
-                "validation": [{"alpha": a, "mae": e} for e, a, _ in candidates],
+                "model": chosen,
+                "validation": [{"model": a, "mae": e} for e, a, _ in candidates],
             }
         report["variables"][variable] = {
             "unit": "W/m²" if variable == "shortwave_radiation" else "°C",
             "holdout": scores,
             "selection": selection,
-            "spread_mae_reduction": scores["means_only"]["mae"]
-            - scores["means_plus_spread"]["mae"],
+            "variance_mae_reduction": scores["means_only"]["mae"]
+            - scores["means_plus_variance"]["mae"],
         }
     report["interpretation"] = (
         "ERA5 is a model-based reanalysis. Lower error is agreement with ERA5, not demonstrated PV skill. The GFS comparator never enters inputs, fitting or model selection. Report all fixed comparisons without selecting a favorable reference."

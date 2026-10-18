@@ -2,12 +2,13 @@
 
 [![Forecast checks](https://github.com/jorge-barb-pereira/DS-solar-forecast-analysis/actions/workflows/forecast.yml/badge.svg)](https://github.com/jorge-barb-pereira/DS-solar-forecast-analysis/actions/workflows/forecast.yml)
 
-An independently written portfolio demonstration of solar-power forecasting, weather-model disagreement and chronological evaluation. **Power observations and power-forecast results are synthetic.** A separate historical weather study uses public forecasts and ERA5 reanalysis, with sanitized aggregate results published below. The default experiments run offline; live acquisition uses location settings supplied locally.
+An independently written portfolio demonstration of solar-power forecasting, weather-model variance and chronological evaluation. **Power observations and power-forecast results are synthetic.** A separate historical weather study uses public forecasts and ERA5 reanalysis, with sanitized aggregate results published below. The default experiments run offline; live acquisition uses location settings supplied locally.
 
 This edition was developed in **October 2026**. It demonstrates general forecasting methods; it does not reproduce an operational installation, a deployment or measured forecasting performance.
 
 ## What it demonstrates
 
+- Four named weather-model inputs, explicit sample variance in ML, and a controlled three-member comparison against historical ERA5 data.
 - Reproducible normalized power series at 15-minute intervals.
 - Issue-time feature availability, lagged observations and rolling summaries.
 - Persistence and daily-persistence baselines, scaled Ridge regression and histogram gradient boosting.
@@ -15,7 +16,7 @@ This edition was developed in **October 2026**. It demonstrates general forecast
 - Validation-only selection, a separate empirical forecast-error band and a frozen final holdout evaluation.
 - Explicit error units, baseline skill and tests for future-data leakage.
 - Optional Open-Meteo calls for current forecasts, previous-day offsets and archived individual model runs, including weather-model comparisons.
-- A separate 96-step daily forecasting study using previous-day/week profiles and weather-model disagreement, with an explicit spread-feature ablation.
+- A separate 96-step daily forecasting study using previous-day/week profiles and weather-model variance, with an explicit variance-feature ablation.
 - A historical weather benchmark against ERA5, with GFS excluded from fitting and tuning, rolling-origin evaluation and paired block-bootstrap intervals. Raw downloads and location settings stay local.
 
 ![Synthetic forecast analysis](docs/figures/forecast-analysis.png)
@@ -44,13 +45,13 @@ For live weather downloads, see [Open-Meteo setup and interpretation](docs/OPEN_
 
 For real archived weather, run `python -m solar_forecast.history --start-date 2025-01-01 --end-date 2025-12-31` with local location settings. See the [historical evaluation protocol](docs/HISTORICAL_BENCHMARK.md). This evaluates weather against reanalysis; it does not establish real PV-power accuracy.
 
-**[Read the historical results report](docs/HISTORICAL_RESULTS.md)** for the original holdout, seven rolling windows and paired confidence intervals. Across 201 rolling test days, adding spread does not show a clear incremental benefit over the trained means-only model. The simple ensemble average has the lowest pooled radiation MAE. These are retrospective weather-verification findings, not measured PV validation.
+**[Read the four-model historical results](docs/HISTORICAL_RESULTS.md)** and [study scope / endpoint selection](docs/STUDY_SCOPE.md). The primary ensemble uses ICON-EU, ECMWF IFS, ARPEGE Europe and GEM Global, with a controlled three-member sensitivity. Across 201 rolling test days, adding variance lowers trained-model radiation MAE, while the simple four-member average remains better. These are retrospective weather-verification findings, not measured PV validation.
 
 ![Historical rolling scores and uncertainty](docs/figures/historical-robustness.png)
 
-For the daily multi-output study, run `python -m solar_forecast.day_ahead`. It **uses inter-model spread as a forecasting input** and compares against the same model without spread. See [daily methods, normalization and limitations](docs/DAY_AHEAD.md) and the [fixed synthetic report](docs/results/day-ahead.json).
+For the daily multi-output study, run `python -m solar_forecast.day_ahead`. It **uses inter-model variance as a forecasting input** and compares against the same model without variance. See [daily methods, normalization and limitations](docs/DAY_AHEAD.md) and the [fixed synthetic report](docs/results/day-ahead.json).
 
-![Synthetic daily forecast and weather-spread comparison](docs/figures/day-ahead.png)
+![Synthetic daily forecast and weather-variance comparison](docs/figures/day-ahead.png)
 
 | Path | Purpose |
 | --- | --- |
@@ -58,8 +59,8 @@ For the daily multi-output study, run `python -m solar_forecast.day_ahead`. It *
 | `src/solar_forecast/features.py` | Causal features and chronological partitions |
 | `src/solar_forecast/study.py` | Baselines, selection, error metrics and residual bands |
 | `src/solar_forecast/open_meteo.py` | Optional public weather API adapter with local settings |
-| `src/solar_forecast/ensemble.py` | Reusable inter-model means, standard deviations, ranges and pairwise differences |
-| `src/solar_forecast/day_ahead.py` | Daily multi-output study, spread ablation and daily uncertainty bands |
+| `src/solar_forecast/ensemble.py` | Reusable inter-model means, variances, standard deviations, ranges and pairwise differences |
+| `src/solar_forecast/day_ahead.py` | Daily multi-output study, variance ablation and daily uncertainty bands |
 | `src/solar_forecast/history.py` | Optional historical weather post-processing and excluded-model comparison |
 | `src/solar_forecast/robustness.py` | Rolling origins, paired circular-block intervals and aggregate public reporting |
 | `tests/` | Analytic checks, causality perturbations and full synthetic experiment |

@@ -19,10 +19,25 @@ class EnsembleTests(unittest.TestCase):
         pair = weather_summaries(frame, ("a", "b"), ("solar",)).iloc[0]
         self.assertAlmostEqual(pair.solar_mean, 4)
         self.assertAlmostEqual(pair.solar_std, np.sqrt(8))
+        self.assertAlmostEqual(pair.solar_variance, 8)
         self.assertAlmostEqual(pair.solar_abs_difference, 4)
         self.assertAlmostEqual(pair.solar_range, 4)
         triple = weather_summaries(frame, ("a", "b", "c"), ("solar",)).iloc[0]
         self.assertAlmostEqual(triple.solar_std, 2)
+        self.assertAlmostEqual(triple.solar_variance, 4)
+
+    def test_four_member_variance_uses_every_member(self):
+        frame = pd.DataFrame({"v_a": [1.0], "v_b": [2.0], "v_c": [3.0], "v_d": [4.0]})
+        summary = weather_summaries(frame, ("a", "b", "c", "d"), ("v",))
+        self.assertAlmostEqual(summary.v_variance.iloc[0], 5 / 3)
+        changed = frame.copy()
+        changed["v_d"] = 20
+        self.assertGreater(
+            weather_summaries(changed, ("a", "b", "c", "d"), ("v",)).v_variance.iloc[0],
+            summary.v_variance.iloc[0],
+        )
+        with self.assertRaises(ValueError):
+            weather_summaries(frame.drop(columns="v_d"), ("a", "b", "c", "d"), ("v",))
 
     def test_missing_members_and_values_are_not_silently_dropped(self):
         for frame, models in (
@@ -52,7 +67,7 @@ class DailyTests(unittest.TestCase):
         modified = frame.copy()
         modified.iloc[7 * 96 : 8 * 96, modified.columns.get_loc("power")] *= 0.5
         changed = daily_samples(modified)
-        for variant in ("means_only", "means_plus_spread"):
+        for variant in ("means_only", "means_plus_variance"):
             np.testing.assert_array_equal(samples[variant][0], changed[variant][0])
         self.assertFalse(
             np.array_equal(samples["target_index"][0], changed["target_index"][0])
@@ -81,7 +96,7 @@ class DailyTests(unittest.TestCase):
         changed["actual"][test] *= 0.5
         changed["target_index"][test] *= 0.5
         modified_report, modified_forecasts = evaluate_daily(changed)
-        for variant in ("means_only", "means_plus_spread"):
+        for variant in ("means_only", "means_plus_variance"):
             first, second = (
                 report["variants"][variant],
                 modified_report["variants"][variant],
@@ -95,7 +110,7 @@ class DailyTests(unittest.TestCase):
             self.assertTrue((forecasts[variant + "_lower"] <= forecasts[variant]).all())
             self.assertTrue((forecasts[variant] <= forecasts[variant + "_upper"]).all())
         self.assertEqual(len(forecasts), len(test) * 96)
-        self.assertTrue(np.isfinite(report["spread_ablation_mae_reduction"]))
+        self.assertTrue(np.isfinite(report["variance_ablation_mae_reduction"]))
 
 
 if __name__ == "__main__":

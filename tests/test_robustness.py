@@ -61,7 +61,7 @@ class RobustnessTests(unittest.TestCase):
                 report["variables"][name]["selection"],
                 updated["variables"][name]["selection"],
             )
-            for variant in ("means_only", "means_plus_spread"):
+            for variant in ("means_only", "means_plus_variance"):
                 np.testing.assert_array_equal(
                     forecast[name + "_" + variant], predictions[name + "_" + variant]
                 )
@@ -86,7 +86,7 @@ class RobustnessTests(unittest.TestCase):
             for baseline, sensitivity in scores["paired_mae_reduction_vs"].items():
                 expected = (
                     scores["pooled_test"][baseline]["mae"]
-                    - scores["pooled_test"]["means_plus_spread"]["mae"]
+                    - scores["pooled_test"]["means_plus_variance"]["mae"]
                 )
                 self.assertAlmostEqual(sensitivity["7"]["mean_mae_reduction"], expected)
 

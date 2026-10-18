@@ -18,7 +18,7 @@ Days are assembled from a strict UTC grid, never arbitrary blocks after dropping
 
 ## Ensemble features and ablation
 
-`weather_summaries` in `ensemble.py` computes means, sample standard deviations (`ddof=1`) and ranges for each variable across aligned model columns. For two members it also computes their absolute difference. Missing members/values are rejected rather than silently changing ensemble composition.
+`weather_summaries` in `ensemble.py` computes means, sample variances and standard deviations (`ddof=1`) and ranges for each variable across aligned model columns. For two members it also computes their absolute difference. Missing members/values are rejected rather than silently changing ensemble composition.
 
 For two members, sample standard deviation is the absolute difference divided by the square root of two. These are related measures of disagreement, not independent uncertainty estimates. Model agreement can coexist with large shared bias.
 
@@ -27,17 +27,17 @@ The daily experiment has two predeclared variants:
 | Variant | Predictors |
 | --- | --- |
 | `means_only` | D-1 and D-7 power-index profiles plus target-day mean radiation and temperature forecasts |
-| `means_plus_spread` | The same predictors plus inter-model standard deviation for both weather variables |
+| `means_plus_variance` | The same predictors plus inter-model sample variance for both weather variables |
 
-The three fictional weather members are generated from a shared latent weather scenario, with common errors and member-specific daily errors. Power observations add separate noise. This is a controlled statistical experiment, not a realistic weather simulator. The added spread features may improve or worsen performance; the report preserves either outcome. The comparison tests information beyond ensemble means, not beyond a model already containing all individual members.
+The four fictional weather members are generated from a shared latent weather scenario, with common errors and member-specific daily errors. Power observations add separate noise. This is a controlled statistical experiment, not a realistic weather simulator. The added variance features may improve or worsen performance; the report preserves either outcome. The comparison tests information beyond ensemble means, not beyond a model already containing all individual members.
 
-In the committed 180-day, seed-42 experiment, holdout MAE is **0.02828 p.u.** with weather means and **0.02873 p.u.** with means plus spread. Spread slightly worsens this example; it is retained as an evaluated feature, not presented as a demonstrated improvement. Both variants have approximately 91.4% observed full-day coverage over 35 test days. These small-sample synthetic results are not evidence of operational accuracy or guaranteed coverage. Exact scores, partitions and library versions are in [the generated report](results/day-ahead.json).
+In the committed four-member 180-day, seed-42 experiment, holdout MAE is **0.02929 p.u.** with weather means and **0.02991 p.u.** with means plus variance. Variance slightly worsens this toy example. Observed full-day band coverage is 80.0% and 74.3%, respectively, below the nominal 90%; this demonstrates that the empirical band is not a coverage guarantee. Exact scores, partitions and library versions are in [the generated report](results/day-ahead.json).
 
 ## Selection, calibration and holdout
 
 The chronological daily examples are divided 60%/20%/20% into training, calibration and test, with one unused day before each boundary. Each variant independently selects Ridge alpha from {0.1, 10, 1000} using three expanding training-only folds with a one-day gap. Each scaler is fitted inside its fold's pipeline. Selection minimizes average fold power MAE after inverse transformation; the selected pipeline is then fitted on training only and frozen.
 
-Both variants and previous-day/previous-week persistence baselines are evaluated on the same final holdout. There is no test-driven winner selection. Reports include all-hour and toy daylight errors, the signed MAE reduction from adding spread, tuning scores and period boundaries. Positive reduction favors spread only on this synthetic experiment.
+Both variants and previous-day/previous-week persistence baselines are evaluated on the same final holdout. There is no test-driven winner selection. Reports include all-hour and toy daylight errors, the signed MAE reduction from adding variance, tuning scores and period boundaries. Positive reduction favors variance only on this synthetic experiment.
 
 For each frozen variant, each calibration day contributes its maximum absolute error across all 96 targets. The finite-sample 90% residual rank determines a symmetric band, clipped to the known toy envelope. Reports distinguish full-day simultaneous coverage from pointwise coverage. This is an empirical daily-error band; temporal dependence prevents an unconditional coverage guarantee. It is not the quantile-regression method and is not a calibrated interpretation of weather spread.
 
@@ -60,7 +60,7 @@ This computes features; it does not train the synthetic model on live weather. B
 
 ## Scope and further work
 
-Implemented here: ensemble summaries, daily multi-output forecasting, D-1/D-7 profiles, toy clear-sky-style normalization, training-only tuning, a spread ablation, daily empirical bands and persistence benchmarks. The simpler estimator keeps the public example reproducible without heavyweight optional runtimes.
+Implemented here: ensemble summaries, daily multi-output forecasting, D-1/D-7 profiles, toy clear-sky-style normalization, training-only tuning, a variance ablation, daily empirical bands and persistence benchmarks. The simpler estimator keeps the public example reproducible without heavyweight optional runtimes.
 
 Not implemented or claimed: the original operational models/results, physical clear-sky modeling, XGBoost/LSTM training, SHAP selection, quantile regression, or a dependence-aware significance test. This is a reproducible subset of general methods, not a reproduction of private results or a deployment-ready system.
 

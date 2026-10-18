@@ -7,18 +7,16 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-from .history import TARGETS, evaluate_history, weather_features
+from .history import (
+    INPUT_MODELS,
+    THREE_MODEL_INPUTS,
+    TARGETS,
+    evaluate_history,
+    weather_features,
+)
 from .study import metrics
 
 COMPARISONS = ("means_only", "input_ensemble_mean", "gfs_global")
-METHODS = (
-    "icon_eu",
-    "ecmwf_ifs025",
-    "gfs_global",
-    "input_ensemble_mean",
-    "means_only",
-    "means_plus_spread",
-)
 
 
 def rolling_partitions(
@@ -55,8 +53,8 @@ def rolling_partitions(
 def paired_interval(fold_daily_differences, block_days=7, repetitions=2000, seed=42):
     """Percentile interval from circular day blocks, resampled within each fold.
 
-    Each input is daily mean(abs(error_baseline)-abs(error_spread)); positive
-    values favor spread. Keeping paired differences preserves forecast pairing.
+    Each input is daily mean(abs(error_baseline)-abs(error_variance)); positive
+    values favor variance. Keeping paired differences preserves forecast pairing.
     Fold-specific fitted pipelines remain fixed throughout resampling.
     """
     folds = [np.asarray(v, dtype=float) for v in fold_daily_differences]
@@ -92,14 +90,14 @@ def paired_interval(fold_daily_differences, block_days=7, repetitions=2000, seed
     }
 
 
-def aggregate_report(frame, repetitions=2000):
+def aggregate_report(frame, repetitions=2000, input_models=INPUT_MODELS):
     """Construct only known aggregate fields, without copying downloaded metadata."""
-    weather_features(frame)
-    fixed, _ = evaluate_history(frame)
+    weather_features(frame, input_models)
+    fixed, _ = evaluate_history(frame, input_models=input_models)
     windows = rolling_partitions(frame.index)
     reports, predictions = [], []
     for positions in windows:
-        report, forecast = evaluate_history(frame, positions)
+        report, forecast = evaluate_history(frame, positions, input_models=input_models)
         reports.append(report)
         predictions.append(forecast)
     result = {
@@ -136,6 +134,16 @@ def aggregate_report(frame, repetitions=2000):
             "variables": {},
         },
     }
+    methods = tuple(
+        (
+            *input_models,
+            "gfs_global",
+            "input_ensemble_mean",
+            "means_only",
+            "means_plus_variance",
+        )
+    )
+    result["methods"] = list(methods)
     combined = pd.concat(predictions)
     if combined.index.has_duplicates:
         raise ValueError("Rolling test windows must not overlap")
@@ -143,7 +151,7 @@ def aggregate_report(frame, repetitions=2000):
         actual = combined[variable + "_era5"].to_numpy()
         scores = {
             name: metrics(actual, combined[variable + "_" + name].to_numpy())
-            for name in METHODS
+            for name in methods
         }
         active = (
             actual > 0
@@ -154,7 +162,7 @@ def aggregate_report(frame, repetitions=2000):
             name: metrics(
                 actual[active], combined[variable + "_" + name].to_numpy()[active]
             )
-            for name in METHODS
+            for name in methods
         }
         intervals = {}
         for baseline in COMPARISONS:
@@ -165,7 +173,7 @@ def aggregate_report(frame, repetitions=2000):
                     forecast[variable + "_" + baseline].to_numpy() - target
                 )
                 spread_error = np.abs(
-                    forecast[variable + "_means_plus_spread"].to_numpy() - target
+                    forecast[variable + "_means_plus_variance"].to_numpy() - target
                 )
                 fold_errors.append(
                     (baseline_error - spread_error).reshape(-1, 24).mean(axis=1)
@@ -191,6 +199,7 @@ def aggregate_report(frame, repetitions=2000):
 
 def write_public_report(report, destination):
     """Export aggregate JSON, an English results page and a score/interval plot."""
+    methods = report["methods"]
     destination = Path(destination)
     (destination / "results").mkdir(parents=True, exist_ok=True)
     (destination / "figures").mkdir(parents=True, exist_ok=True)
@@ -201,6 +210,8 @@ def write_public_report(report, destination):
         "# Historical weather results",
         "",
         "Real archived forecast data compared with ERA5 reanalysis. These are weather-variable scores, not measured PV-power accuracy. Location values, raw hourly data and original project material are excluded.",
+        "",
+        "**Four input models:** ICON-EU, ECMWF IFS 0.25°, ARPEGE Europe and GEM Global. The ML ablation adds explicit sample variance (`ddof=1`) across all four members. GFS is an excluded comparator, and ERA5 is the reference. The earlier two-model standard-deviation experiment is [archived separately](results/historical-two-model-legacy.json); its conclusions do not describe this revised study.",
         "",
         "## Design",
         "",
@@ -213,7 +224,7 @@ def write_public_report(report, destination):
         "| Method | Radiation MAE (W/m²) | Temperature MAE (°C) |",
         "| --- | ---: | ---: |",
     ]
-    for method in METHODS:
+    for method in methods:
         a, b = (
             report["rolling"]["variables"][v]["pooled_test"][method]["mae"]
             for v in TARGETS
@@ -223,7 +234,7 @@ def write_public_report(report, destination):
         "",
         "## Paired differences and uncertainty",
         "",
-        f"Positive reduction means lower MAE for `means_plus_spread`. Intervals below use {report['protocol']['bootstrap_replicates']:,} paired circular-block replicates of daily mean errors, with seven-day blocks resampled separately within each fold. Comparisons use exactly the same test hours.",
+        f"Positive reduction means lower MAE for `means_plus_variance`. Intervals below use {report['protocol']['bootstrap_replicates']:,} paired circular-block replicates of daily mean errors, with seven-day blocks resampled separately within each fold. Comparisons use exactly the same test hours.",
         "",
         "| Variable | Comparator | MAE reduction | Approximate 95% interval |",
         "| --- | --- | ---: | --- |",
@@ -236,20 +247,38 @@ def write_public_report(report, destination):
             text.append(
                 f"| {variable} | {baseline} | {row['mean_mae_reduction']:.4f} | [{row['lower_95']:.4f}, {row['upper_95']:.4f}] |"
             )
+    if "three_model_sensitivity" in report:
+        text += [
+            "",
+            "## Three-model versus four-model sensitivity",
+            "",
+            "The three-member subset (ICON-EU, ECMWF IFS and ARPEGE Europe) and four-member ensemble use the same complete dates, partitions, candidate models and reference. No model set is selected on test performance. The comparison adds GEM Global as a fourth forecast centre, but does not assume statistical independence between centres.",
+            "",
+            "| Variable | Three members: means MAE | Three members: variance MAE | Four members: means MAE | Four members: variance MAE |",
+            "| --- | ---: | ---: | ---: | ---: |",
+        ]
+        for variable in TARGETS:
+            three = report["three_model_sensitivity"]["variables"][variable][
+                "pooled_test"
+            ]
+            four = report["rolling"]["variables"][variable]["pooled_test"]
+            text.append(
+                f"| {variable} | {three['means_only']['mae']:.4f} | {three['means_plus_variance']['mae']:.4f} | {four['means_only']['mae']:.4f} | {four['means_plus_variance']['mae']:.4f} |"
+            )
     text += ["", "## Findings", ""]
     for variable in TARGETS:
         values = report["rolling"]["variables"][variable]
         row = values["paired_mae_reduction_vs"]["means_only"]["7"]
         conclusion = (
-            "lower error with spread"
+            "lower error with variance"
             if row["lower_95"] > 0
             else (
-                "higher error with spread"
+                "higher error with variance"
                 if row["upper_95"] < 0
-                else "no clear incremental benefit from spread"
+                else "no clear incremental benefit from variance"
             )
         )
-        best = min(METHODS, key=lambda name: values["pooled_test"][name]["mae"])
+        best = min(methods, key=lambda name: values["pooled_test"][name]["mae"])
         text += [
             f"For **{variable}**, the primary paired interval indicates **{conclusion}**. The lowest pooled MAE among the fixed methods is from `{best}`; this descriptive ranking does not select or refit a winner using test labels.",
             "",
@@ -262,7 +291,7 @@ def write_public_report(report, destination):
         "",
         "An interval containing zero does not establish a consistent improvement under this approximation. An interval excluding zero is conditional evidence for this dataset/protocol, not proof of universal superiority. Intervals are marginal, without multiplicity adjustment, and do not include retraining uncertainty. Daily blocks account for some serial dependence, but dependence beyond the selected length and artificial circular joins remain limitations.",
         "",
-        "The aggregate JSON includes 1-, 3-, 7- and 14-day block sensitivity, every fold, original fixed-holdout results, units, versions, RMSE, bias, and radiation scores restricted to positive ERA5 radiation. Nighttime zeros can reduce all-hour radiation MAE. Earlier test outcomes may enter training in later rolling windows once historical, while each window remains strictly chronological.",
+        "The aggregate JSON includes 1-, 3-, 7- and 14-day block sensitivity, every fold, revised fixed-holdout results, units, versions, RMSE, bias, and radiation scores restricted to positive ERA5 radiation. Nighttime zeros can reduce all-hour radiation MAE. Earlier test outcomes may enter training in later rolling windows once historical, while each window remains strictly chronological.",
         "",
         "One location and one year limit generalization. ERA5 is a retrospective model-based reference, with shared meteorological inputs and assumptions; it is not independent station truth. Exact local reproduction requires the withheld local configuration and downloaded data. Raw weather must remain local. The synthetic power studies remain separate.",
         "",
@@ -280,8 +309,10 @@ def write_public_report(report, destination):
     fig, axes = plt.subplots(2, 2, figsize=(12, 8), layout="constrained")
     for col, variable in enumerate(TARGETS):
         data = report["rolling"]["variables"][variable]
-        scores = [data["pooled_test"][name]["mae"] for name in METHODS]
-        axes[0, col].barh(METHODS, scores, color=["#7393a7"] * 5 + ["#cc853b"])
+        scores = [data["pooled_test"][name]["mae"] for name in methods]
+        axes[0, col].barh(
+            methods, scores, color=["#7393a7"] * (len(methods) - 1) + ["#cc853b"]
+        )
         axes[0, col].invert_yaxis()
         axes[0, col].set(
             title=variable.replace("_", " "), xlabel="Pooled MAE (" + data["unit"] + ")"
@@ -296,7 +327,7 @@ def write_public_report(report, destination):
         axes[1, col].set(
             yticks=range(3),
             yticklabels=COMPARISONS,
-            xlabel="MAE reduction from spread (" + data["unit"] + ")",
+            xlabel="MAE reduction from variance (" + data["unit"] + ")",
             title="Paired 95% intervals; seven-day blocks",
         )
     fig.suptitle(
@@ -316,9 +347,22 @@ def main():
         action="store_true",
         help="Write aggregate report into docs/ after local data review",
     )
+    parser.add_argument(
+        "--compare-three",
+        action="store_true",
+        help="Also evaluate the fixed three-member subset on identical dates",
+    )
     args = parser.parse_args()
     frame = pd.read_csv(args.input, index_col=0, parse_dates=True)
     report = aggregate_report(frame)
+    if args.compare_three:
+        three = aggregate_report(frame, input_models=THREE_MODEL_INPUTS)
+        report["three_model_sensitivity"] = {
+            "input_models": list(THREE_MODEL_INPUTS),
+            "test_days": three["rolling"]["test_days"],
+            "variables": three["rolling"]["variables"],
+            "folds": three["rolling"]["folds"],
+        }
     destination = Path("docs") if args.publish else Path("output/history-robustness")
     write_public_report(report, destination)
     print(
