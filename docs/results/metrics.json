@@ -1,0 +1,122 @@
+{
+  "horizon_steps": 4,
+  "horizon_minutes": 60,
+  "selected_model": "gradient_boosting",
+  "validation_comparison": [
+    {
+      "model": "gradient_boosting",
+      "mae": 0.016389138920349933,
+      "rmse": 0.030800374504850153,
+      "bias": -0.0013322869583287681,
+      "samples": 1709
+    },
+    {
+      "model": "ridge_0.1",
+      "mae": 0.022318262612687146,
+      "rmse": 0.036876973125678184,
+      "bias": 0.0023310173983199832,
+      "samples": 1709
+    },
+    {
+      "model": "ridge_1",
+      "mae": 0.022361582672887386,
+      "rmse": 0.03687935987554638,
+      "bias": 0.0023601542590750415,
+      "samples": 1709
+    },
+    {
+      "model": "ridge_10",
+      "mae": 0.02259464760927003,
+      "rmse": 0.03691601345133262,
+      "bias": 0.0025921692582853988,
+      "samples": 1709
+    },
+    {
+      "model": "daily_persistence",
+      "mae": 0.038895951098310115,
+      "rmse": 0.07383811725429683,
+      "bias": 0.0005904729262197895,
+      "samples": 1709
+    },
+    {
+      "model": "persistence",
+      "mae": 0.06304996948308529,
+      "rmse": 0.0991297158106539,
+      "bias": 0.0012411489464441545,
+      "samples": 1709
+    }
+  ],
+  "holdout": {
+    "mae": 0.016017820813131724,
+    "rmse": 0.029799005477063163,
+    "bias": 0.0004150525212340716,
+    "samples": 1713
+  },
+  "baselines": {
+    "persistence": {
+      "mae": 0.06111363941321442,
+      "rmse": 0.09442410818151512,
+      "bias": -2.592464739346542e-19,
+      "samples": 1713
+    },
+    "daily_persistence": {
+      "mae": 0.04591734285950895,
+      "rmse": 0.08444097072463162,
+      "bias": 0.005084484371473602,
+      "samples": 1713
+    }
+  },
+  "holdout_skill_vs_best_baseline": 0.6511596748500743,
+  "holdout_synthetic_active_period": {
+    "mae": 0.031567129176253546,
+    "rmse": 0.04195818664654402,
+    "bias": 0.000632473986414791,
+    "samples": 864
+  },
+  "interval": {
+    "nominal_coverage": 0.9,
+    "residual_radius": 0.058961357054776564,
+    "observed_coverage": 0.9194395796847635,
+    "mean_width": 0.08793221740380185,
+    "interpretation": "Empirical residual band; temporal dependence prevents a distribution-free coverage claim."
+  },
+  "partitions": {
+    "train": {
+      "rows": 6848,
+      "first_issue": "2050-01-02T00:00:00+00:00",
+      "last_issue": "2050-03-14T07:45:00+00:00",
+      "last_target": "2050-03-14T08:45:00+00:00"
+    },
+    "validation": {
+      "rows": 1709,
+      "first_issue": "2050-03-14T09:00:00+00:00",
+      "last_issue": "2050-04-01T04:00:00+00:00",
+      "last_target": "2050-04-01T05:00:00+00:00"
+    },
+    "calibration": {
+      "rows": 1138,
+      "first_issue": "2050-04-01T05:15:00+00:00",
+      "last_issue": "2050-04-13T01:30:00+00:00",
+      "last_target": "2050-04-13T02:30:00+00:00"
+    },
+    "test": {
+      "rows": 1713,
+      "first_issue": "2050-04-13T02:45:00+00:00",
+      "last_issue": "2050-04-30T22:45:00+00:00",
+      "last_target": "2050-04-30T23:45:00+00:00"
+    }
+  },
+  "dataset": {
+    "kind": "synthetic",
+    "days": 120,
+    "seed": 42,
+    "rows": 11520,
+    "unit": "normalized power (per unit)"
+  },
+  "versions": {
+    "numpy": "2.3.5",
+    "pandas": "2.3.3",
+    "scikit-learn": "1.9.1",
+    "matplotlib": "3.10.9"
+  }
+}
