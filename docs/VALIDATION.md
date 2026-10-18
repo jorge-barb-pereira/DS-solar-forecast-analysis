@@ -17,4 +17,8 @@ Manual live smoke checks in October 2026 used a neutral test location independen
 
 ## Daily ensemble study
 
-The daily study adds analytic two-/three-member summary checks, rejects incomplete or misaligned days, verifies that target-day power cannot enter its own predictors, and confirms that changing held-out labels cannot change training-fold selection, calibration radius or frozen predictions. Both daily variants run in CI. The complete suite has 28 tests. Published daily results and figures are generated solely from the included fictional weather/power generator; see [daily methods and interpretation](DAY_AHEAD.md).
+The daily study adds analytic two-/three-member summary checks, rejects incomplete or misaligned days, verifies that target-day power cannot enter its own predictors, and confirms that changing held-out labels cannot change training-fold selection, calibration radius or frozen predictions. Both daily variants run in CI. Published daily results and figures are generated solely from the included fictional weather/power generator; see [daily methods and interpretation](DAY_AHEAD.md).
+
+## Historical weather workflow
+
+Historical request tests cover endpoint/date selection, invalid ranges, complete requested coverage and unit agreement. Evaluation perturbation tests verify that excluded GFS data and final test labels cannot affect predictor construction or parameter selection. The complete suite has 33 tests. A manual historical acquisition/evaluation was run over all of 2025 with hourly data; downloaded data and results remain local. See the [historical protocol](HISTORICAL_BENCHMARK.md) for the distinction between reanalysis verification and observed PV validation.

@@ -24,6 +24,8 @@ allowed_files = {
     "tests/test_day_ahead.py",
     "docs/results/day-ahead.json",
     "docs/figures/day-ahead.png",
+    "tests/test_history.py",
+    "docs/HISTORICAL_BENCHMARK.md",
 }
 allowed_package = {
     "__init__.py",
@@ -34,6 +36,7 @@ allowed_package = {
     "open_meteo.py",
     "ensemble.py",
     "day_ahead.py",
+    "history.py",
 }
 checked = 0
 for p in root.rglob("*"):

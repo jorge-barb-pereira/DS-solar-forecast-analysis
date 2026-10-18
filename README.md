@@ -16,6 +16,7 @@ This edition was developed in **October 2026**. It demonstrates general forecast
 - Explicit error units, baseline skill and tests for future-data leakage.
 - Optional Open-Meteo calls for current forecasts, previous-day offsets and archived individual model runs, including weather-model comparisons.
 - A separate 96-step daily forecasting study using previous-day/week profiles and weather-model disagreement, with an explicit spread-feature ablation.
+- An optional historical weather benchmark against ERA5, with a separate GFS comparator excluded from fitting and tuning. Downloads and results stay local.
 
 ![Synthetic forecast analysis](docs/figures/forecast-analysis.png)
 
@@ -41,6 +42,8 @@ Outputs are `synthetic-series.csv`, `forecast.csv`, `metrics.json` and `forecast
 
 For live weather downloads, see [Open-Meteo setup and interpretation](docs/OPEN_METEO.md). That workflow exports only selected weather variables and safe provenance under ignored `output/`; it does not use real power measurements or change the synthetic benchmark.
 
+For real archived weather, run `python -m solar_forecast.history --start-date 2025-01-01 --end-date 2025-12-31` with local location settings. See the [historical evaluation protocol](docs/HISTORICAL_BENCHMARK.md). This evaluates weather against reanalysis; it does not establish real PV-power accuracy.
+
 For the daily multi-output study, run `python -m solar_forecast.day_ahead`. It **uses inter-model spread as a forecasting input** and compares against the same model without spread. See [daily methods, normalization and limitations](docs/DAY_AHEAD.md) and the [fixed synthetic report](docs/results/day-ahead.json).
 
 ![Synthetic daily forecast and weather-spread comparison](docs/figures/day-ahead.png)
@@ -53,6 +56,7 @@ For the daily multi-output study, run `python -m solar_forecast.day_ahead`. It *
 | `src/solar_forecast/open_meteo.py` | Optional public weather API adapter with local settings |
 | `src/solar_forecast/ensemble.py` | Reusable inter-model means, standard deviations, ranges and pairwise differences |
 | `src/solar_forecast/day_ahead.py` | Daily multi-output study, spread ablation and daily uncertainty bands |
+| `src/solar_forecast/history.py` | Optional historical weather post-processing and excluded-model comparison |
 | `tests/` | Analytic checks, causality perturbations and full synthetic experiment |
 | `docs/` | Methods, limitations, validation and generated synthetic results |
 | `tools/` | Public-file allowlist and artifact checks |

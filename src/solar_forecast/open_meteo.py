@@ -1,7 +1,7 @@
 """Optional public weather acquisition; no site configuration is stored here."""
 
 import argparse
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 import json
 import math
 import os
@@ -16,6 +16,8 @@ ENDPOINTS = {
     "forecast": "https://api.open-meteo.com/v1/forecast",
     "previous-runs": "https://previous-runs-api.open-meteo.com/v1/forecast",
     "single-run": "https://single-runs-api.open-meteo.com/v1/forecast",
+    "historical-forecast": "https://historical-forecast-api.open-meteo.com/v1/forecast",
+    "historical-weather": "https://archive-api.open-meteo.com/v1/archive",
 }
 VARIABLES = ("temperature_2m", "cloud_cover", "shortwave_radiation")
 
@@ -34,6 +36,8 @@ def build_request(
     days=2,
     run=None,
     previous_days=1,
+    start_date=None,
+    end_date=None,
 ):
     """Construct one site request; callers must treat the returned URL as private."""
     if not all(
@@ -69,6 +73,29 @@ def build_request(
         resolution: ",".join(variables),
         "forecast_days": days,
     }
+    historical = mode in {"historical-forecast", "historical-weather"}
+    if historical or start_date is not None or end_date is not None:
+        if (
+            mode not in {"historical-forecast", "historical-weather", "previous-runs"}
+            or resolution != "hourly"
+        ):
+            raise WeatherError(
+                "Date ranges require an hourly historical or previous-runs request."
+            )
+        try:
+            start, end = date.fromisoformat(start_date or ""), date.fromisoformat(
+                end_date or ""
+            )
+        except (ValueError, TypeError):
+            raise WeatherError("Provide both dates in YYYY-MM-DD format.") from None
+        if (
+            start.isoformat() != start_date
+            or end.isoformat() != end_date
+            or not 0 <= (end - start).days < 366
+        ):
+            raise WeatherError("Use an ordered date range of at most 366 days.")
+        params.pop("forecast_days")
+        params.update(start_date=start_date, end_date=end_date)
     if models:
         params["models"] = models
     if mode == "single-run":
@@ -103,6 +130,8 @@ def fetch_weather(
     days=2,
     run=None,
     previous_days=1,
+    start_date=None,
+    end_date=None,
     opener=None,
 ):
     """Return selected UTC weather columns and safe provenance, never raw metadata.
@@ -119,6 +148,8 @@ def fetch_weather(
         days=days,
         run=run,
         previous_days=previous_days,
+        start_date=start_date,
+        end_date=end_date,
     )
     try:
         with (opener or urlopen)(url, timeout=30) as response:
@@ -141,6 +172,16 @@ def fetch_weather(
         ):
             raise ValueError
         index = pd.to_datetime(timestamps, unit="s", utc=True)
+        if start_date is not None:
+            expected = pd.date_range(
+                start_date,
+                pd.Timestamp(end_date) + pd.Timedelta(days=1),
+                freq="h",
+                inclusive="left",
+                tz="UTC",
+            )
+            if len(index) != len(expected) or not all(index == expected):
+                raise ValueError
         step = pd.Timedelta(minutes=15 if resolution == "minutely_15" else 60)
         if (
             index.has_duplicates
@@ -180,6 +221,8 @@ def fetch_weather(
             "models": models or "best_match",
             "run_initialization_utc": run,
             "previous_day_offset": previous_days if mode == "previous-runs" else None,
+            "start_date": start_date,
+            "end_date": end_date,
             "units": selected_units,
             "attribution": "Weather data by Open-Meteo (CC BY 4.0).",
         }
@@ -200,6 +243,8 @@ def main(argv=None):
     parser.add_argument("--days", type=int, default=2)
     parser.add_argument("--run", help="Model initialization in UTC, YYYY-MM-DDTHH:MM")
     parser.add_argument("--previous-days", type=int, default=1)
+    parser.add_argument("--start-date")
+    parser.add_argument("--end-date")
     args = parser.parse_args(argv)
     try:
         latitude = float(os.environ["OPEN_METEO_LATITUDE"])
@@ -218,6 +263,8 @@ def main(argv=None):
             days=args.days,
             run=args.run,
             previous_days=args.previous_days,
+            start_date=args.start_date,
+            end_date=args.end_date,
         )
     except WeatherError as error:
         parser.exit(2, str(error) + "\n")

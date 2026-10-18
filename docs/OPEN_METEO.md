@@ -20,11 +20,19 @@ python -m solar_forecast.open_meteo --mode previous-runs --previous-days 1
 
 # One archived model initialization in UTC; choose a supported cycle/date
 python -m solar_forecast.open_meteo --mode single-run --models icon_eu --run 2026-10-01T00:00
+
+# Date-bounded historical reanalysis (hourly)
+python -m solar_forecast.open_meteo --mode historical-weather --models era5 --start-date 2025-01-01 --end-date 2025-12-31
+
+# Archived, stitched operational forecasts (hourly)
+python -m solar_forecast.open_meteo --mode historical-forecast --models icon_eu,ecmwf_ifs025 --start-date 2025-01-01 --end-date 2025-12-31
 ```
 
 `--days` selects 1–16 forecast days (default 2), subject to the chosen model's horizon and archive availability. The default variables are air temperature, cloud cover and shortwave radiation. Model/variable combinations depend on provider support; unsupported requests fail with a redacted message. There are no automatic retries or background downloads. No subscription credentials are required by this free-endpoint adapter; it does not implement customer endpoints.
 
 Regional models require a location within their domain. If a multi-model response omits a requested model or loses its model labels, acquisition fails rather than silently attributing weather to the wrong model.
+
+Historical modes require both dates and accept up to 366 inclusive days per request. Date-bounded Previous Runs requests are also supported; `--days` is replaced by the date range in those requests. Historical requests are hourly, and their responses must cover the exact requested UTC range. Historical Weather is reanalysis; Historical Forecast contains stitched operational model output. Neither is a measured PV dataset. See the [historical benchmark](HISTORICAL_BENCHMARK.md) for a fixed-reference comparison that excludes a third forecast model from fitting.
 
 Downloads overwrite `output/open-meteo/weather.csv` and `provenance.json`, both ignored by Git. Save distinct local copies when collecting successive runs. Only requested numeric weather fields and UTC valid times are exported. Echoed location, elevation and other response metadata are discarded. Provenance retains units, provider, retrieval time, mode, model selection and requested run initialization/day offset. Downloaded weather can still reveal location indirectly: keep it local and review any derived plots before publication. CI publishes only the separate synthetic experiment outputs.
 
